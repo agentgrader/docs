@@ -45,7 +45,7 @@ export default withMermaid(defineConfig({
       }
     ],
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/crucible-agr/agr' }
+      { icon: 'github', link: 'https://github.com/crucible-org/agr' }
     ]
   }
 }))

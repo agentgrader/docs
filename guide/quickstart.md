@@ -13,7 +13,7 @@ First, grab the repository from GitHub and install all the necessary dependencie
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/crucible-agr/agr
+git clone https://github.com/crucible-org/agr
 cd agr
 
 # 2. Install all dependencies

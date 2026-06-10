@@ -14,7 +14,7 @@ hero:
       link: /guide/quickstart
     - theme: alt
       text: View on GitHub
-      link: https://github.com/crucible-agr/agr
+      link: https://github.com/crucible-org/agr
 
 features:
   - title: Language Agnostic
