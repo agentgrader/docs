@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 
 export default withMermaid(defineConfig({
+  base: '/agr-docs/',
   title: "Crucible Agentgrader",
   description: "Agent testing framework.",
   themeConfig: {
