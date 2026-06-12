@@ -59,6 +59,14 @@ API gateway: `openrouter`, `openai`, or `anthropic`. Determines which environmen
 
 Hard cap on ReAct loop iterations before the agent is stopped.
 
+### `step_timeout_ms`
+
+**Type:** `number` (default: `120000`)
+
+Aborts the agent's `generateText` call if a single provider request hangs longer than this many milliseconds. Without this, a stalled API request (no response, no error) leaves the entire run, including its sandbox container, hanging indefinitely with no result and no cleanup. When the timeout fires, the error is logged and the run proceeds to scoring and cleanup as if the agent had stopped on its own.
+
+Raise this if you expect individual steps to legitimately take longer (e.g. a model that "thinks" for a long time before responding, or a `success.run` command invoked via `executeCommand` that takes minutes).
+
 ### `temperature`
 
 **Type:** `number` (optional)

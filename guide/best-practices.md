@@ -223,6 +223,16 @@ When `fail_to_pass`/`pass_to_pass` or `expected_files` are not configured, the r
 
 These are informational: the run still passes or fails based on `success` criteria. Add SWE-bench fields when you need per-test regression checks or localization metrics.
 
+### A run stops mid-trace with no RUN SUMMARY, and a sandbox container is left running
+
+Symptoms: `agr run --verbose` (or a script built around `runSingle`) prints a series of `[step N]` lines and then nothing else - no `RUN SUMMARY`, no error, and `docker ps` shows a leftover container still running `tail -f /dev/null` for that test case.
+
+This means a single `generateText` call to the model provider never settled (no response, no error) - the entire run, including the `cleanup` step that destroys the sandbox, is blocked on that one awaited call forever. Raising `max_steps` does not help, since the run never reaches the step limit.
+
+Set `step_timeout_ms` (default `120000`) in `agent.yaml` - see [Agent Config: `step_timeout_ms`](/reference/agent-config-yaml#step-timeout-ms). When a request hangs past this limit, it is aborted, the error is logged, and the run proceeds to scoring and cleanup normally. Lower it (e.g. to `60000`) to fail faster while iterating, or raise it for models/providers known to have slow individual responses.
+
+If you hit this with an older `agentgrader`/`@agentgrader/agent-openrouter` build that predates `step_timeout_ms`, manually `docker rm -f` the leftover container (it will be `tail -f /dev/null` with no other process running) and upgrade.
+
 ### `agr bench` flag errors
 
 `agr bench` requires `--suite` and either `--configs`, `--config`, or `--matrix`. If you pass `--config` to bench (singular), it works as an alias for a single `--configs` path: the same flag name as `agr run --config` but with different semantics on each command.
