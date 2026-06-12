@@ -229,6 +229,8 @@ Symptoms: `agr run --verbose` (or a script built around `runSingle`) prints a se
 
 This means a single `generateText` call to the model provider never settled (no response, no error) - the entire run, including the `cleanup` step that destroys the sandbox, is blocked on that one awaited call forever. Raising `max_steps` does not help, since the run never reaches the step limit.
 
+The same stall can also end the process instead of hanging it: if the dropped connection was the last live handle, the event loop drains and the process exits with code 0 and no output at all. A run that "vanishes" mid-trace with a clean exit code is this same problem, not a crash in your script.
+
 Set `step_timeout_ms` (default `120000`) in `agent.yaml` - see [Agent Config: `step_timeout_ms`](/reference/agent-config-yaml#step-timeout-ms). When a request hangs past this limit, it is aborted, the error is logged, and the run proceeds to scoring and cleanup normally. Lower it (e.g. to `60000`) to fail faster while iterating, or raise it for models/providers known to have slow individual responses.
 
 If you hit this with an older `agentgrader`/`@agentgrader/agent-openrouter` build that predates `step_timeout_ms`, manually `docker rm -f` the leftover container (it will be `tail -f /dev/null` with no other process running) and upgrade.

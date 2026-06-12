@@ -63,9 +63,11 @@ Hard cap on ReAct loop iterations before the agent is stopped.
 
 **Type:** `number` (default: `120000`)
 
-Aborts the agent's `generateText` call if a single provider request hangs longer than this many milliseconds. Without this, a stalled API request (no response, no error) leaves the entire run, including its sandbox container, hanging indefinitely with no result and no cleanup. When the timeout fires, the error is logged and the run proceeds to scoring and cleanup as if the agent had stopped on its own.
+A per-step inactivity watchdog: aborts the agent loop if a single step makes no progress for this many milliseconds. The timer resets every time a step finishes, so a long run of many healthy steps is never cut off; only a step that genuinely stalls (a provider request that never settles, for example because the connection silently died) triggers the abort. Without this, a stalled request leaves the entire run, including its sandbox container, stuck with no result and no cleanup. When the watchdog fires, the run records an agent error (visible as `agent error:` in `agr trace`) and proceeds to scoring and cleanup as if the agent had stopped on its own.
 
 Raise this if you expect individual steps to legitimately take longer (e.g. a model that "thinks" for a long time before responding, or a `success.run` command invoked via `executeCommand` that takes minutes).
+
+Note for `@agentgrader/agent-openrouter` 3.x and earlier: the original implementation used `AbortSignal.timeout`, which capped the entire loop (not a single step) and could fail to fire at all on a silently dropped connection, letting the run process exit with no output and exit code 0. Upgrade if you see runs vanish mid-trace with no error.
 
 ### `temperature`
 
