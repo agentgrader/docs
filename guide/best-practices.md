@@ -113,6 +113,32 @@ By default every agent gets all local sandbox tools plus every tool from configu
 
 See [Agent Config YAML](/reference/agent-config-yaml#tools).
 
+## Getting agents to actually use a custom `toolkits` skill
+
+Adding a toolkit (`toolkits:` in `agent.yaml`/`agr.yaml`) makes its `bin/`
+scripts and `.claude/skills/*/SKILL.md` available, but the model still has
+to *choose* to call them over the built-in `executeCommand`/`readFile`. Use
+[`agr trace <runId> --tools`](/reference/cli#agr-trace) after a run to check
+the actual call counts; a custom tool sitting at `0` while
+`readFile`/`executeCommand` are high means it was available but unused.
+
+If adoption is low:
+
+- **Be directive in `system_prompt`**, not just descriptive. "You have a
+  `find-usages` tool" is weaker than "Before reading a file to locate a
+  definition or call site, run `find-usages <symbol>` first."
+- **Make the `SKILL.md` description say *when*, not just *what***. Skill
+  descriptions are injected into the system prompt up front; the model
+  decides whether to read the full `SKILL.md` based on that one line.
+  "Finds all references to a symbol across the codebase - use this instead
+  of grep when exploring unfamiliar code" beats "Find Usages tool".
+- **Test on tasks that reward the tool.** A trivial single-file task gives
+  the model no reason to reach for a cross-file search/rename tool; adoption
+  is more visible on tasks that span multiple files.
+- Re-run and re-check `--tools` after each prompt tweak. Adoption rate
+  (custom-tool calls / total tool calls) across a few runs is a much more
+  reliable signal than reading a single trace.
+
 ## `agent_config` in `agr.yaml` vs. bench config flags
 
 | Goal | Approach |
@@ -194,3 +220,24 @@ These are informational: the run still passes or fails based on `success` criter
 ### `agr bench` flag errors
 
 `agr bench` requires `--suite` and either `--configs`, `--config`, or `--matrix`. If you pass `--config` to bench (singular), it works as an alias for a single `--configs` path: the same flag name as `agr run --config` but with different semantics on each command.
+
+### `pip install -e` fails with `ModuleNotFoundError: setuptools.dep_util`
+
+When importing older Python projects with `agr import-pr --clone-fixture` (for example pre-2023 `astropy` or `numpy` pull requests), the `success.run` command may fail during `pip install -e ".[test]"` with:
+
+```
+ModuleNotFoundError: No module named 'setuptools.dep_util'
+```
+
+This happens because `setuptools >= 60` removed `setuptools.dep_util`, which `numpy.distutils`/`extension_helpers`-based `setup.py` builds in older repos still import. It is an environment incompatibility with the fixture's era, not an agent or scoring bug.
+
+Fix by pinning an older `setuptools` (and `wheel`) before the editable install in `agr.yaml`:
+
+```yaml
+success:
+  - run: pip install -q "setuptools<60" wheel && pip install -q -e ".[test]" && python -m pytest ...
+    expect:
+      exit_code: 0
+```
+
+Check `--tools` (see [`agr trace --tools`](/reference/cli#agr-trace)) to confirm the agent's steps were spent on the actual task rather than fighting the build, then re-run.
