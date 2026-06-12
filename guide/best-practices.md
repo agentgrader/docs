@@ -138,6 +138,12 @@ If adoption is low:
 - Re-run and re-check `--tools` after each prompt tweak. Adoption rate
   (custom-tool calls / total tool calls) across a few runs is a much more
   reliable signal than reading a single trace.
+- **Give it enough `max_steps`.** Toolkit-heavy exploration (reading
+  structure, searching usages, checking git history before editing) burns
+  AI-SDK steps quickly - a step limit tuned for a "read one file, make one
+  edit" baseline agent (e.g. `max_steps: 20`) can leave a toolkit-using
+  agent still investigating when it runs out. 30+ is a more realistic
+  starting point once a toolkit is wired in.
 
 ## `agent_config` in `agr.yaml` vs. bench config flags
 
@@ -241,3 +247,47 @@ success:
 ```
 
 Check `--tools` (see [`agr trace --tools`](/reference/cli#agr-trace)) to confirm the agent's steps were spent on the actual task rather than fighting the build, then re-run.
+
+## Testing unpublished crucible changes locally
+
+If you're iterating on `@agentgrader/agent-openrouter` (or another
+crucible package) and want to test the change against a project that
+depends on the *published* `agentgrader` CLI - without an npm publish:
+
+1. `cd packages/<package> && bun link` in the crucible checkout.
+2. `bun link @agentgrader/<package>` in the other project. This points the
+   *top-level* `node_modules/@agentgrader/<package>` at your local build.
+
+**Caveat**: the published `agentgrader` CLI package ships with its own
+`node_modules/agentgrader/node_modules/@agentgrader/<package>` (normal
+package-manager dependency isolation). Node/Bun module resolution prefers
+that *nested* copy over your top-level link, so `bunx agr run` will keep
+using the old, published code - the link alone isn't enough, and you
+should not hand-edit anything under `node_modules/agentgrader/` to force
+it.
+
+Instead, write a small standalone script that calls `runSingle` /
+`AiSdkAgentAdapter` directly:
+
+```ts
+import { runSingle, type AgentConfig, type TestCase /* ... */ } from "@agentgrader/core";
+import { AiSdkAgentAdapter } from "@agentgrader/agent-openrouter"; // resolves your linked build
+import { DockerSandboxProvider } from "@agentgrader/sandbox-docker";
+
+// load testCase/agentConfig from agr.yaml/agent.yaml (same as the CLI does),
+// then:
+const result = await runSingle({
+  testCase, agentConfig,
+  adapter: new AiSdkAgentAdapter(),
+  sandboxProvider: new DockerSandboxProvider(),
+  runId: crypto.randomUUID(),
+  onStep: (step) => console.log(step),
+});
+```
+
+This imports `@agentgrader/agent-openrouter` from the top level (your
+link), while `@agentgrader/core`/`@agentgrader/sandbox-docker` come from
+the dependent project's already-published, working versions. `db` is
+optional on `RunSingleInput` - omit it if `@agentgrader/store`'s bundled
+`better-sqlite3` has a Node/Bun ABI mismatch in that project (the run still
+works, it just won't be recorded to `.agr/db.sqlite`).
