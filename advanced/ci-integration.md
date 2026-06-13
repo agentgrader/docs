@@ -8,10 +8,19 @@ Use `assert:` criteria in test cases (`assert: steps <= 10`, `assert: cost_usd <
 
 Before running agents, verify test case definitions are complete:
 
-```bash
+::: code-group
+
+```bash [npm]
 npm install -g agentgrader
 agr validate test-cases/my-case/agr.yaml --strict
 ```
+
+```bash [bun]
+bun add -g agentgrader
+agr validate test-cases/my-case/agr.yaml --strict
+```
+
+:::
 
 `--strict` exits with code 1 if `test_command`, `fail_to_pass`, or `pass_to_pass` are missing. Without it, `agr validate` may pass with only static YAML checks (execution checks skipped when `test_command` is absent).
 

@@ -6,6 +6,8 @@ The `@agentgrader/agent-acp` package implements `AcpAgentAdapter`. Agentgrader a
 
 ## How it works
 
+Click the sequence diagram to zoom and inspect each step.
+
 ```mermaid
 sequenceDiagram
     participant AGR as Agentgrader (ACP client)
@@ -34,9 +36,17 @@ Permission prompts (`session/request_permission`) are auto-approved so benchmark
 
 The ACP adapter ships with the CLI from Agentgrader 1.3+. For programmatic use:
 
-```bash
+::: code-group
+
+```bash [npm]
+npm install @agentgrader/agent-acp @agentgrader/core @agentgrader/sandbox-docker
+```
+
+```bash [bun]
 bun add @agentgrader/agent-acp @agentgrader/core @agentgrader/sandbox-docker
 ```
+
+:::
 
 You must also install the external ACP agent binary you want to benchmark (for example `claude` with ACP mode, or `cursor-agent`) and ensure it is on your `PATH`.
 

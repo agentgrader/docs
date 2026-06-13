@@ -2,11 +2,19 @@
 
 **Agentgrader** is an open-source framework for benchmarking AI coding agents. Run agents against real programming test cases inside isolated Docker sandboxes, score results objectively, and track cost, token usage, and pass rates over time.
 
-Install it from npm: no repository clone required:
+Install from npm or Bun. No repository clone required:
 
-```bash
+::: code-group
+
+```bash [npm]
 npm install -g agentgrader
 ```
+
+```bash [bun]
+bun add -g agentgrader
+```
+
+:::
 
 The core idea: you have a coding agent (GPT-4o, Claude, Gemini, or your own implementation) and you want to know objectively how good it is on real tasks. Agentgrader provides the infrastructure to find out.
 
@@ -20,6 +28,8 @@ The core idea: you have a coding agent (GPT-4o, Claude, Gemini, or your own impl
 - **Node and Bun:** Runs on Node.js 18+ or [Bun](https://bun.sh/). Results persist in a local SQLite database.
 
 ## Architecture overview
+
+Click the diagram to open the interactive viewer. Zoom with the mouse wheel, pan by dragging, or use the toolbar buttons.
 
 ```mermaid
 graph TD

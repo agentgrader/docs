@@ -2,11 +2,23 @@
 
 The `agr` command ships with the [`agentgrader`](https://www.npmjs.com/package/agentgrader) npm package.
 
-```bash
+::: code-group
+
+```bash [npm]
 npm install -g agentgrader
-# or per-invocation:
+agr <command>
+```
+
+```bash [bun]
+bun add -g agentgrader
+agr <command>
+```
+
+```bash [bunx / npx]
 bunx agentgrader <command>
 ```
+
+:::
 
 > **Output convention**: `agr` output never contains emoji or other pictographic symbols, anywhere. Status is conveyed with plain text labels (`PASS`/`FAIL`, `[OK]`/`[WARN]`/`[FAIL]`, `[error]`) and, where the terminal supports it, ANSI/Ink color (green for pass, red for fail, yellow for warnings/in-progress, cyan for headers, gray for secondary text).
 

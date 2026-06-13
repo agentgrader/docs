@@ -1,20 +1,31 @@
 # Bench Manifest (`bench.yaml`)
 
-A bench manifest describes a full benchmark in one file: which test case suite to run, which agent configs to use, and optional concurrency. Paths in the manifest are resolved relative to the manifest file's directory.
+A bench manifest describes **which test suite** and **which agent configs** to use in a single `agr bench --manifest` invocation. Paths in the manifest are resolved relative to the manifest file location.
 
-Use it when you keep one YAML per agent architecture and do not want long `--configs` lists on the command line.
+## Minimal example
 
 ```yaml
-name: my-benchmark
-suite: ./test-cases
+name: typescript-bugs-bench
+suite: ./suites/typescript-bugs
 agents:
-  glob: "./agents-configs/*.yaml"
+  glob: "./configs/*.yaml"
 concurrency: 2
 ```
 
-```bash
+Run it:
+
+::: code-group
+
+```bash [npm]
+npm install -g agentgrader
 agr bench --manifest bench.yaml
 ```
+
+```bash [bun]
+bunx agentgrader bench --manifest bench.yaml
+```
+
+:::
 
 ## Schema reference
 
@@ -22,67 +33,67 @@ agr bench --manifest bench.yaml
 
 **Type:** `string` (optional)
 
-Human-readable label for the benchmark. Used in CLI log output.
+Human-readable label for the benchmark. Shown in logs and useful in CI job names.
 
 ### `suite`
 
 **Type:** `string` (required)
 
-Path to the test case suite directory (same as `agr bench --suite`). Agentgrader recursively finds `agr.yaml` files under this directory.
+Path to the directory containing test case folders (each with an `agr.yaml`). Resolved relative to the manifest file.
+
+Example: if `bench.yaml` lives in `my-benchmark/` and `suite: ./test-cases`, Agentgrader loads every `agr.yaml` under `my-benchmark/test-cases/`.
 
 ### `agents`
 
 **Type:** `object` (required)
 
-Describes which agent config files to load. At least one of `paths` or `glob` is required. Both can be combined; duplicates are removed.
+Describes which agent config YAML files to load. You must set at least one of `paths` or `glob`.
 
 #### `agents.paths`
 
 **Type:** `string[]` (optional)
 
-Explicit list of agent config YAML files, relative to the manifest file.
+Explicit list of agent config files, relative to the manifest directory.
 
 ```yaml
 agents:
   paths:
-    - ./agents/claude-debugger.yaml
-    - ./agents/gpt-fast.yaml
+    - ./agents-configs/claude.yaml
+    - ./agents-configs/gpt-mini.yaml
 ```
 
 #### `agents.glob`
 
 **Type:** `string` or `string[]` (optional)
 
-Glob pattern(s) matched relative to the manifest file. Supports `*` and `**`.
-
-```yaml
-agents:
-  glob: "./agents-configs/*.yaml"
-```
+Glob pattern(s) matched from the manifest directory. Useful when you have many configs in one folder.
 
 ```yaml
 agents:
   glob:
-    - "./agents/*.yaml"
-    - "./experiments/extra-agent.yaml"
+    - "./agents-configs/*.yaml"
+    - "./experiments/*.yaml"
 ```
 
 ### `concurrency`
 
 **Type:** `number` (optional)
 
-Parallel sandbox runs. Defaults to `2` unless overridden by `agr bench --concurrency`.
+Maximum parallel sandbox runs. Defaults to the CLI default (`2`) when omitted. Increase on powerful runners; decrease when Docker or API rate limits bite.
 
-## Example layout
+## Full example
 
 ```
 my-benchmark/
   bench.yaml
   agents-configs/
-    claude-debugger.yaml
-    gpt-fast.yaml
+    claude-sonnet.yaml
+    gpt-4o-mini.yaml
   test-cases/
     fix-greeting/
+      agr.yaml
+      fixture/
+    fix-parser/
       agr.yaml
       fixture/
 ```
@@ -90,19 +101,45 @@ my-benchmark/
 **`bench.yaml`:**
 
 ```yaml
-name: greeting-benchmark
+name: nightly-regression
 suite: ./test-cases
 agents:
   glob: "./agents-configs/*.yaml"
+concurrency: 3
 ```
 
-## Related options
+Equivalent without a manifest:
 
-| Goal | Command |
+```bash
+agr bench \
+  --suite test-cases/ \
+  --configs-dir agents-configs/ \
+  --concurrency 3
+```
+
+## Manifest vs. matrix vs. CLI flags
+
+| Approach | When to use |
 |---|---|
-| Manifest (suite + agents in one file) | `agr bench --manifest bench.yaml` |
-| Agent folder only (suite on CLI) | `agr bench --suite test-cases/ --configs-dir agents-configs/` |
-| Explicit file list | `agr bench --suite test-cases/ --configs a.yaml,b.yaml` |
-| Hyperparameter sweep (inline fields) | `agr bench --suite test-cases/ --matrix matrix.yaml` |
+| `bench.yaml` | Stable team config: suite + agent globs in one checked-in file |
+| `--configs-dir` / `--configs` | Ad-hoc runs, scripting, one-off comparisons |
+| `--matrix matrix.yaml` | Cartesian sweep over hyperparameters (model, temperature, prompts) |
 
-See [CLI Reference: agr bench](/reference/cli#agr-bench) and [Core Concepts](/guide/concepts#organizing-agent-configs).
+A manifest does **not** expand matrices. For sweeps, use [Core Concepts: Optimizer matrices](/guide/concepts#optimizer-matrices).
+
+## CI usage
+
+```yaml
+- name: Run benchmark
+  env:
+    OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+  run: agr bench --manifest bench.yaml
+```
+
+Validate test cases first with `agr validate --strict` (see [Best Practices](/guide/best-practices#validate-before-you-benchmark)).
+
+## Related
+
+- [CLI Reference: `agr bench`](/reference/cli)
+- [Agent Config YAML](/reference/agent-config-yaml)
+- [CI Integration](/advanced/ci-integration)

@@ -10,21 +10,26 @@ You can run your first agent evaluation in a few minutes. Install the CLI from n
 
 ## 1. Install the CLI
 
-Install globally so `agr` is on your `PATH`, or invoke it per-project with `bunx`:
+Install globally so `agr` is on your `PATH`, or invoke it per-project without a global install:
 
-```bash
+::: code-group
+
+```bash [npm]
 npm install -g agentgrader
-# or
-bun add -g agentgrader
-# or, without a global install:
-bunx agentgrader --help
-```
-
-Verify the install:
-
-```bash
 agr --help
 ```
+
+```bash [bun]
+bun add -g agentgrader
+agr --help
+```
+
+```bash [bunx / npx]
+bunx agentgrader --help
+# or: npx agentgrader --help
+```
+
+:::
 
 ## 2. Set your API key
 

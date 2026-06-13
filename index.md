@@ -2,34 +2,62 @@
 layout: home
 
 hero:
-  name: "Agentgrader"
-  text: ""
-  tagline: The open-source agent architecture benchmark framework to test your AI agents on real coding tasks.
+  name: Agentgrader
+  text: Benchmark AI coding agents
+  tagline: Run agents against real programming tasks in Docker sandboxes. Score with objective test suites, track cost and tokens, and compare architectures in CI.
   image:
     src: /LGO.svg
     alt: Agentgrader Logo
   actions:
     - theme: brand
-      text: Let's get started
+      text: Quickstart
       link: /guide/quickstart
     - theme: alt
-      text: Programmatic API
-      link: /advanced/programmatic-api
+      text: Best Practices
+      link: /guide/best-practices
     - theme: alt
-      text: View on GitHub
+      text: GitHub
       link: https://github.com/agentgrader/agr
 
 features:
-  - title: Language Agnostic
-    details: You can run your agents in any programming language supported by Docker. Whether it is TypeScript, Python, Rust, or Go, Agentgrader has you covered.
-  - title: Real Execution
-    details: We do not use mocks. Your agent actually runs real commands and edits actual files directly inside a secure Docker container.
-  - title: Automated Scoring
-    details: It is easy to know if your agent succeeded. Pass and fail states are determined objectively by running real test suites like npm test or pytest.
-  - title: Cost and Token Tracking
-    details: Keep a close eye on your budget. Every run automatically tracks the exact tokens consumed and the total cost in USD per model.
-  - title: Programmatic API First
-    details: The core framework is fully decoupled from the CLI. Build your own testing infrastructure, plug in custom Agent Adapters (AI SDK, ACP, or your own), or orchestrate distributed evaluations programmatically using Node.js or Bun.
-  - title: Node & Bun Support
-    details: It is designed to be incredibly flexible and fast. The framework runs on standard Node.js or Bun, utilizing better-sqlite3 for a lightning fast local database experience.
+  - icon: 🐳
+    title: Real sandboxes
+    details: Every run gets a fresh Docker container. Agents execute real commands and edit real files. No mocks.
+  - icon: 📊
+    title: Objective scoring
+    details: Pass and fail come from test suites (npm test, pytest, go test) plus optional SWE-bench regression checks.
+  - icon: 💰
+    title: Cost tracking
+    details: Token usage and USD cost per model are recorded for every run in a local SQLite database.
+  - icon: 🔌
+    title: Pluggable adapters
+    details: Swap the AI SDK loop, OpenRouter, Anthropic, OpenAI, or external ACP agents (Claude Code, Cursor Agent) without changing core logic.
+  - icon: ⚡
+    title: Node and Bun
+    details: Install globally or embed programmatically. Works on Node.js 18+ and Bun with the same packages.
+  - icon: 🧪
+    title: CI ready
+    details: Validate YAML, gate on assert limits, run matrix sweeps, and integrate with GitHub Actions in minutes.
 ---
+
+## Install in one line
+
+::: code-group
+
+```bash [npm]
+npm install -g agentgrader
+agr init my-benchmark && cd my-benchmark
+```
+
+```bash [bun]
+bun add -g agentgrader
+agr init my-benchmark && cd my-benchmark
+```
+
+:::
+
+Set an API key in `.env`, then run your first evaluation:
+
+```bash
+agr run tasks/hello-world/agr.yaml --config agent.yaml --verbose
+```

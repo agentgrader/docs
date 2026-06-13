@@ -4,6 +4,8 @@ Agentgrader is published as a set of npm packages. Install only what you need: m
 
 ## Architecture
 
+Click any diagram to zoom and pan in the fullscreen viewer.
+
 ```mermaid
 graph TD
     Store["@agentgrader/store"] --> Core["@agentgrader/core"]
@@ -43,15 +45,31 @@ Current versions on npm (check `npm view <package> version` for the latest):
 
 **CLI only** (evaluate agents from the terminal):
 
-```bash
+::: code-group
+
+```bash [npm]
 npm install -g agentgrader
 ```
 
+```bash [bun]
+bun add -g agentgrader
+```
+
+:::
+
 **Programmatic integration** (custom pipelines, CI tools):
 
-```bash
+::: code-group
+
+```bash [npm]
+npm install @agentgrader/core @agentgrader/sandbox-docker @agentgrader/agent-openrouter @agentgrader/agent-acp @agentgrader/store
+```
+
+```bash [bun]
 bun add @agentgrader/core @agentgrader/sandbox-docker @agentgrader/agent-openrouter @agentgrader/agent-acp @agentgrader/store
 ```
+
+:::
 
 See [Programmatic API](/advanced/programmatic-api) for usage examples.
 

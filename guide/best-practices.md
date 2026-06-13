@@ -1,401 +1,149 @@
 # Best Practices
 
-Practical guidance for authoring test cases, running evaluations in CI, and debugging agent behavior.
+Practical patterns for teams running Agentgrader in day-to-day development and CI. These recommendations come from real benchmark workflows: fast feedback loops, reproducible scoring, and predictable cost.
+
+## Start with `agr init`
+
+Use the built-in scaffold instead of hand-writing every file:
+
+::: code-group
+
+```bash [npm]
+npm install -g agentgrader
+agr init my-benchmark
+cd my-benchmark
+```
+
+```bash [bun]
+bun add -g agentgrader
+agr init my-benchmark
+cd my-benchmark
+```
+
+:::
+
+Set your API key, then run the bundled hello-world task:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+agr run tasks/hello-world/agr.yaml --config agent.yaml --verbose
+```
+
+Once that passes, replace the fixture and prompt with your own task. Keep the same folder layout (`tasks/<name>/agr.yaml` + `fixture/`).
+
+## Project layout
+
+A layout that scales well for teams:
+
+```
+my-benchmark/
+  bench.yaml                 # optional manifest for agr bench --manifest
+  agent.yaml                 # default agent for quick agr run
+  agents-configs/            # one YAML per architecture you want to compare
+    claude-sonnet.yaml
+    gpt-mini.yaml
+  test-cases/
+    fix-greeting/
+      agr.yaml
+      fixture/
+  .env                       # local only, never commit API keys
+  .agr/db.sqlite             # run history (gitignore this)
+```
+
+Version-control test cases and agent configs. Ignore `.agr/` and `.env` in git.
 
 ## Validate before you benchmark
 
-Use `agr validate` to check a test case definition before spending tokens on a full agent run:
+Agent runs are slow and cost money. Catch YAML mistakes first:
 
 ```bash
-agr validate test-cases/my-case/agr.yaml
+agr validate test-cases/fix-greeting/agr.yaml
+agr validate test-cases/fix-greeting/agr.yaml --strict
 ```
 
-Validation performs static field checks and, when `test_command` is configured, runs pre-patch and post-patch execution checks inside Docker (verifying `fail_to_pass` tests currently fail and `pass_to_pass` tests pass, then that the gold `solution` patch fixes them).
+`--strict` fails when SWE-bench fields (`test_command`, `fail_to_pass`, `pass_to_pass`) are missing. Use it in CI before any `agr bench` step.
 
-### When `test_command` is missing
+## Fill in regression fields deliberately
 
-If `test_command` is not set, execution checks are **skipped** and reported with ⚠️: validation still passes for YAML structure alone. Do not treat a green `agr validate` as proof that Docker execution was verified unless execution checks actually ran.
+For SWE-bench style scoring, `agr validate` does **not** auto-populate `fail_to_pass` or `pass_to_pass`. You must run the test suite once, read TAP output, and copy test names into `agr.yaml`:
 
-### Use `--strict` in CI
+1. Run `test_command` inside the fixture (locally or in Docker).
+2. Note which tests fail on the broken fixture (`fail_to_pass`).
+3. Note which tests must stay green (`pass_to_pass`).
+4. Re-run `agr validate --strict` to confirm execution checks pass.
 
-For pipelines that should reject incomplete test cases, use:
+See [Test Case YAML](/reference/test-case-yaml) for the full schema.
 
-```bash
-agr validate test-cases/my-case/agr.yaml --strict
-```
+## Set budget guardrails in YAML
 
-`--strict` exits with code 1 if `test_command`, `fail_to_pass`, or `pass_to_pass` are missing. This prevents "YAML lint only" from passing as a quality gate.
-
-Example GitHub Actions step:
-
-```yaml
-- name: Validate test cases
-  run: |
-    npm install -g agentgrader
-    for f in test-cases/*/agr.yaml; do
-      agr validate "$f" --strict
-    done
-```
-
-See [CI Integration](/advanced/ci-integration) for a full workflow example.
-
-## Filling in `fail_to_pass` and `pass_to_pass`
-
-These fields list **individual test names** as they appear in TAP output. Agentgrader parses TAP lines like:
-
-```
-ok 1 - greet returns a friendly message
-not ok 2 - handles empty input
-```
-
-### Workflow
-
-1. Set `test_command` to a command that produces TAP output. For Node.js:
-
-   ```yaml
-   test_command: "node --test --test-reporter=tap src/**/*.test.js"
-   ```
-
-   For Python (requires [pytest-tap](https://pypi.org/project/pytest-tap/)):
-
-   ```yaml
-   test_command: "pytest --tap-stream"
-   ```
-
-2. Run the test suite manually inside the fixture (or use `agr import-pr --clone-fixture` and inspect output) to collect exact test names.
-
-3. Add names to the lists:
-
-   ```yaml
-   fail_to_pass:
-     - "handles empty input"
-   pass_to_pass:
-     - "greet returns a friendly message"
-   ```
-
-4. Run `agr validate` to confirm pre-patch and post-patch behavior.
-
-`agr validate` does **not** auto-populate these fields: it only verifies the definition once you fill them in. `agr import-pr` scaffolds empty lists with TODO comments as a starting point.
-
-## Debug agent runs with `--verbose`
-
-Long agent runs can appear silent for 30 to 60 seconds. Stream steps live:
-
-```bash
-agr run test-cases/my-case/agr.yaml --config agent.yaml --verbose
-```
-
-Each step prints a compact line:
-
-```
-[step 3] tool_call: executeCommand({"command":"npm test"})
-[step 4] tool_result: executeCommand -> exit_code 1, ...
-[step 5] message: I'll fix the off-by-one error...
-```
-
-Long `content` strings are truncated to keep output readable. Without `--verbose`, behavior is unchanged: you only see the final summary.
-
-After the run, inspect the full trace:
-
-```bash
-agr trace <runId>
-```
-
-## When to use `tools` allowlist
-
-By default every agent gets all local sandbox tools plus every tool from configured MCP servers. Set `tools` in `agent.yaml` when you want to **restrict** what the model can call:
-
-- **Read-only reviewers:** allow `readFile` and `executeCommand` but omit `writeFile` so the agent cannot modify the fixture directly.
-- **MCP hygiene:** when several MCP servers are connected, allowlist only the namespaced tools you intend (e.g. `github_create_issue`) and exclude the rest.
-- **Minimal agents:** force shell-only workflows with `executeCommand` + `submit` and no file tools.
-
-`submit` is always added implicitly. Unknown tool names in the list are ignored with a warning.
-
-See [Agent Config YAML](/reference/agent-config-yaml#tools).
-
-## Getting agents to actually use a custom `toolkits` skill
-
-Adding a toolkit (`toolkits:` in `agent.yaml`/`agr.yaml`) makes its `bin/`
-scripts and `.claude/skills/*/SKILL.md` available, but the model still has
-to *choose* to call them over the built-in `executeCommand`/`readFile`. Use
-[`agr trace <runId> --tools`](/reference/cli#agr-trace) after a run to check
-the actual call counts; a custom tool sitting at `0` while
-`readFile`/`executeCommand` are high means it was available but unused.
-
-If adoption is low:
-
-- **Be directive in `system_prompt`**, not just descriptive. "You have a
-  `find-usages` tool" is weaker than "Before reading a file to locate a
-  definition or call site, run `find-usages <symbol>` first."
-- **Make the `SKILL.md` description say *when*, not just *what***. Skill
-  descriptions are injected into the system prompt up front; the model
-  decides whether to read the full `SKILL.md` based on that one line.
-  "Finds all references to a symbol across the codebase - use this instead
-  of grep when exploring unfamiliar code" beats "Find Usages tool".
-- **Test on tasks that reward the tool.** A trivial single-file task gives
-  the model no reason to reach for a cross-file search/rename tool; adoption
-  is more visible on tasks that span multiple files.
-- Re-run and re-check `--tools` after each prompt tweak. Adoption rate
-  (custom-tool calls / total tool calls) across a few runs is a much more
-  reliable signal than reading a single trace.
-- **Give it enough `max_steps`.** Toolkit-heavy exploration (reading
-  structure, searching usages, checking git history before editing) burns
-  AI-SDK steps quickly - a step limit tuned for a "read one file, make one
-  edit" baseline agent (e.g. `max_steps: 20`) can leave a toolkit-using
-  agent still investigating when it runs out. 30+ is a more realistic
-  starting point once a toolkit is wired in.
-
-## `agent_config` in `agr.yaml` vs. bench config flags
-
-| Goal | Approach |
-|---|---|
-| One test case, one default agent; `agr run` with no flags | `agent_config: ../agent.yaml` in `agr.yaml` |
-| Same agent across an entire suite; `agr bench` with no config flags | Every test case references the **same** `agent_config` path |
-| Compare N agents × M test cases | `agr bench --configs-dir …` or `--configs a.yaml,b.yaml` |
-| Sweep hyperparameters (model × temperature × prompt) | `agr bench --matrix matrix.yaml` |
-| Reproducible suite + agent list in one file | `agr bench --manifest bench.yaml` |
-
-Per-test-case `agent_config` values are **not** expanded into a Cartesian product on `agr bench`. If test cases point at different agent configs, bench fails unless you pass explicit `--configs` / `--matrix` / `--manifest`.
-
-## Compare agents with matrix benchmarks
-
-When evaluating multiple models or hyperparameters, use a matrix YAML instead of maintaining many separate agent config files:
-
-```yaml
-name: model-sweep
-base:
-  max_steps: 20
-  temperature: 0.2
-dimensions:
-  model:
-    - openai/gpt-4o-mini
-    - anthropic/claude-sonnet-4
-```
-
-```bash
-agr bench --suite test-cases/ --matrix matrix.yaml
-```
-
-Every run shares a `matrixId`. After the benchmark, a **MATRIX SUMMARY** table shows solve rate, average cost, and quality metrics per config, with Pareto-optimal entries marked.
-
-For programmatic access to matrix results, see [Programmatic API: Optimizer Matrix Sweeps](/advanced/programmatic-api#optimizer-matrix-sweeps).
-
-## Benchmarking ACP agents
-
-To evaluate Claude Code, Cursor Agent, or another [ACP](https://agentclientprotocol.com/) binary instead of the built-in AI SDK loop:
-
-1. Install the agent CLI and ensure it supports ACP mode (for example `claude --acp` or `cursor-agent acp`).
-2. Add `acp_command` / `acp_args` to your agent config (see `examples/configs/agent-acp-claude.yaml` in the main repo).
-3. Pass `--adapter acp` to `agr run`, or `--adapters acp` (or `ai-sdk,acp` for side-by-side comparison) to `agr bench`.
-
-The ACP subprocess runs on the host; file and terminal tools still execute inside the Docker sandbox. Raise `step_timeout_ms` for long-running ACP turns (five minutes is a reasonable starting point for complex tasks).
-
-Full details: [ACP Agent Adapter](/advanced/acp-agent).
-
-## Measuring custom toolkit adoption
-
-After a bench sweep, check the **TOOL USAGE BY CONFIG** section printed at the end of `agr bench`. It aggregates `tool_call` counts per agent config across all runs in that session, so you can compare adoption between configs (for example baseline vs. a config with `toolkits: [./toolkits/my-tools]`) without running `agr trace --tools` on every cell.
-
-For a single run, use `agr trace <runId> --tools`. To compare two runs side by side, use `agr compare <runIdA> <runIdB> --only-diff`.
-
-If custom CLI tools show zero calls across multiple runs on non-trivial tasks, revisit the system prompt (directive workflow) and skill descriptions before changing the tool implementations themselves.
-
-## Troubleshooting
-
-### Docker is not reachable
-
-Agentgrader requires a running Docker daemon. Symptoms include errors about connecting to the Docker socket or failing to create containers.
-
-- Ensure Docker Desktop (or the Docker engine on Linux) is running.
-- On Linux CI runners, the `ubuntu-latest` GitHub Actions image includes Docker.
-- Verify with `docker ps` before running `agr`.
-
-### Missing API keys
-
-The CLI loads `.env` from the current working directory. If no key is found, the adapter throws a clear error naming the missing variable (`OPENROUTER_API_KEY`, `OPENAI_API_KEY`, or `ANTHROPIC_API_KEY` depending on `provider`).
-
-Create a `.env` file next to where you run `agr`:
-
-```bash
-OPENROUTER_API_KEY=sk-or-...
-```
-
-Or export the variable in your shell or CI secrets.
-
-### Validation passes but execution was skipped
-
-If `test_command` is empty, `agr validate` shows:
-
-```
-⚠️ execution-checks (skipped - no test_command)
-```
-
-and prints a note that only static checks ran. This is expected for scaffolded test cases: fill in `test_command` and test name lists before relying on validation as a quality gate. Use `--strict` in CI to catch this early.
-
-### Skipped scorers in run summary
-
-When `fail_to_pass`/`pass_to_pass` or `expected_files` are not configured, the run summary shows warnings like:
-
-```
-⚠️ Regression: No fail_to_pass/pass_to_pass criteria configured; skipping regression check.
-⚠️ Localization: No expected_files configured; skipping localization check.
-```
-
-These are informational: the run still passes or fails based on `success` criteria. Add SWE-bench fields when you need per-test regression checks or localization metrics.
-
-### A run stops mid-trace with no RUN SUMMARY, and a sandbox container is left running
-
-Symptoms: `agr run --verbose` (or a script built around `runSingle`) prints a series of `[step N]` lines and then nothing else - no `RUN SUMMARY`, no error, and `docker ps` shows a leftover container still running `tail -f /dev/null` for that test case.
-
-This means a single `generateText` call to the model provider never settled (no response, no error) - the entire run, including the `cleanup` step that destroys the sandbox, is blocked on that one awaited call forever. Raising `max_steps` does not help, since the run never reaches the step limit.
-
-The same stall can also end the process instead of hanging it: if the dropped connection was the last live handle, the event loop drains and the process exits with code 0 and no output at all. A run that "vanishes" mid-trace with a clean exit code is this same problem, not a crash in your script.
-
-Set `step_timeout_ms` (default `120000`) in `agent.yaml` - see [Agent Config: `step_timeout_ms`](/reference/agent-config-yaml#step-timeout-ms). When a request hangs past this limit, it is aborted, the error is logged, and the run proceeds to scoring and cleanup normally. Lower it (e.g. to `60000`) to fail faster while iterating, or raise it for models/providers known to have slow individual responses.
-
-If you hit this with an older `agentgrader`/`@agentgrader/agent-openrouter` build that predates `step_timeout_ms`, manually `docker rm -f` the leftover container (it will be `tail -f /dev/null` with no other process running) and upgrade.
-
-#### A second, independent cause: a hanging `test_command`
-
-Even with `step_timeout_ms` set, the same symptom (silent stall, leftover container) could still happen *after* the agent loop finished or was aborted: the `score` step runs `test_command` (and any `fail_to_pass`/`pass_to_pass` checks) inside the sandbox via `sandbox.exec()`, which previously had no timeout at all. If the agent's (possibly incomplete) edit introduced an infinite loop in the code under test, `exec()` would poll forever with no log output - identical at first glance to a provider hang, but with a completely different cause and fix.
-
-As of `@agentgrader/core`/`@agentgrader/sandbox-docker` with the `exec` timeout fix, `sandbox.exec()` gives up after 180s by default and reports `timedOut: true` (`CommandScorer` then fails the run with a "timed out and was abandoned" message instead of hanging), `runSingle`'s `score` step is skipped entirely when the agent loop itself errored (no point running the full test suite against a guaranteed-fail run), and `cleanup` bounds `sandbox.destroy()` to 60s. Upgrade if you're still seeing indefinite stalls after a `step_timeout_ms` abort.
-
-### `[WARN] ... unrecognized field(s) "..."` when loading a config
-
-`agr run`, `agr bench`, and `agr validate` now warn on stderr if `agent.yaml` or `agr.yaml` contains a top-level key that the installed `@agentgrader/core` doesn't recognize, for example:
-
-```
-[WARN] agent config "agent.yaml": unrecognized field(s) "step_timeout_ms" - these are silently ignored. Likely causes: a typo, or your installed @agentgrader/core doesn't support this field yet (e.g. step_timeout_ms, escalate_after_steps/escalate_model). Check your @agentgrader/core version.
-```
-
-This catches a "config version-skew" trap: zod's `.parse()` silently drops unrecognized keys, so a field your YAML sets - `step_timeout_ms`, `escalate_after_steps`/`escalate_model`, etc. - can have *zero effect* with no error if your `@agentgrader/core` predates that field. Before this warning existed, the symptom was indistinguishable from the field simply "not helping" (e.g. a configured `step_timeout_ms: 90000` silently falling back to the 120s default).
-
-If you see this warning, either fix the typo or upgrade `@agentgrader/core` (and re-run `bun link @agentgrader/core` in any project that links it locally, per [Testing unpublished crucible changes locally](#testing-unpublished-crucible-changes-locally) below) so the field takes effect.
-
-### A run finished with `finished: false` but `agr trace` shows no score detail
-
-A run can end up with `finished: false` for two very different reasons that otherwise look identical: either the agent submitted a solution that failed scoring, or the agent loop itself never reached `submit` (an error or a `step_timeout_ms` abort cut it off first).
-
-Run `agr trace <runId>` and check for an `agent error:` line, which is populated from `metrics.agentError`. If present, the agent loop itself errored or was aborted (the message names `step_timeout_ms` when that was the cause), and the run never got a real chance to solve the task, no matter what the scorers say. If absent, the agent ran to completion (or `max_steps`) and the failure is a genuine scoring miss.
-
-### `agr bench` flag errors
-
-`agr bench` requires `--suite` and either `--configs`, `--config`, or `--matrix`. If you pass `--config` to bench (singular), it works as an alias for a single `--configs` path: the same flag name as `agr run --config` but with different semantics on each command.
-
-### `pip install -e` fails with `ModuleNotFoundError: setuptools.dep_util`
-
-When importing older Python projects with `agr import-pr --clone-fixture` (for example pre-2023 `astropy` or `numpy` pull requests), the `success.run` command may fail during `pip install -e ".[test]"` with:
-
-```
-ModuleNotFoundError: No module named 'setuptools.dep_util'
-```
-
-This happens because `setuptools >= 60` removed `setuptools.dep_util`, which `numpy.distutils`/`extension_helpers`-based `setup.py` builds in older repos still import. It is an environment incompatibility with the fixture's era, not an agent or scoring bug.
-
-Fix by pinning an older `setuptools` (and `wheel`) before the editable install in `agr.yaml`:
+Add `assert:` criteria so a run fails when an agent spirals:
 
 ```yaml
 success:
-  - run: pip install -q "setuptools<60" wheel && pip install -q -e ".[test]" && python -m pytest ...
-    expect:
-      exit_code: 0
+  - run: npm test
+    expect: { exit_code: 0 }
+  - assert: steps <= 15
+  - assert: cost_usd <= 0.10
+timeout_seconds: 300
 ```
 
-Check `--tools` (see [`agr trace --tools`](/reference/cli#agr-trace)) to confirm the agent's steps were spent on the actual task rather than fighting the build, then re-run.
+Tune limits per task difficulty. Tight limits catch runaway tool loops early.
 
-## Testing unpublished crucible changes locally
+## Choose the right bench mode
 
-If you're iterating on `@agentgrader/agent-openrouter` (or another
-crucible package) and want to test the change against a project that
-depends on the *published* `agentgrader` CLI - without an npm publish:
+| Goal | Command |
+|---|---|
+| One task, one agent | `agr run tasks/foo/agr.yaml --config agent.yaml` |
+| Full suite × several agents | `agr bench --suite test-cases/ --configs-dir agents-configs/` |
+| Hyperparameter sweep (model × temperature) | `agr bench --matrix matrix.yaml --suite test-cases/` |
+| Reproducible team config in one file | `agr bench --manifest bench.yaml` |
 
-1. `cd packages/<package> && bun link` in the crucible checkout.
-2. `bun link @agentgrader/<package>` in the other project. This points the
-   *top-level* `node_modules/@agentgrader/<package>` at your local build.
+Use [Bench Manifest YAML](/reference/bench-manifest-yaml) when you want suite paths and agent globs checked into one file. Use `--matrix` when you need a cartesian product of dimensions, not hand-written agent files.
 
-**Linking multiple crucible packages at once?** Don't repeat step 2 for
-each one. Every `bun link @agentgrader/<package>` invocation in the other
-project triggers a reinstall that silently reverts every other
-previously-linked `@agentgrader/*` package back to its registry-published
-version, overwriting the symlink with a real `node_modules` copy of the
-old code. Re-linking the next package "fixes" that one and breaks the
-previous one again (whack-a-mole), and the package still resolves, so a
-verification run can pass while actually exercising stale code.
+## Compare adapters fairly
 
-For two or more packages (e.g. `core` + `sandbox-docker` +
-`agent-openrouter`), skip `bun link` for this step entirely:
+When benchmarking an external ACP agent (Claude Code, Cursor Agent) against the built-in AI SDK loop, pass both adapters explicitly:
 
 ```bash
-cd /path/to/crucible && bun run build   # build all packages once
-cd /path/to/other-project/node_modules/@agentgrader
-rm -rf core sandbox-docker agent-openrouter
-ln -sfn /path/to/crucible/packages/core core
-ln -sfn /path/to/crucible/packages/sandbox-docker sandbox-docker
-ln -sfn /path/to/crucible/packages/agent-openrouter agent-openrouter
+agr bench \
+  --suite test-cases/ \
+  --configs agent.yaml,agents-configs/agent-acp-claude.yaml \
+  --adapters ai-sdk,acp
 ```
 
-Do this in one batch and make no further `bun link` calls afterward.
-Verify each link actually points at your local build, e.g. `cat
-node_modules/@agentgrader/<package>/package.json | grep version` should
-match crucible's `package.json`, not an older published version, and
-`grep -c "<a-string-only-in-your-new-code>"
-node_modules/@agentgrader/<package>/dist/index.js` should be non-zero.
+See [ACP Agent Adapter](/advanced/acp-agent) for config fields and tool routing.
 
-Also watch for a self-referential symlink: running `bun link
-@agentgrader/<package>` from *inside* that package's own crucible
-directory (instead of from the other project) creates
-`node_modules/@agentgrader/<package> -> ../..`, pointing at itself. Fix
-with `rm -f node_modules/@agentgrader/<package>` and re-link from the
-correct directory.
+## Debug failed runs
 
-**Caveat**: the published `agentgrader` CLI package ships with its own
-`node_modules/agentgrader/node_modules/@agentgrader/<package>` (normal
-package-manager dependency isolation). Node/Bun module resolution prefers
-that *nested* copy over your top-level link, so `bunx agr run` will keep
-using the old, published code - the link alone isn't enough, and you
-should not hand-edit anything under `node_modules/agentgrader/` to force
-it.
+Every run gets a UUID stored in `.agr/db.sqlite`:
 
-Instead, write a small standalone script that calls `runSingle` /
-`AiSdkAgentAdapter` directly:
-
-```ts
-import { runSingle, type AgentConfig, type TestCase /* ... */ } from "@agentgrader/core";
-import { AiSdkAgentAdapter } from "@agentgrader/agent-openrouter"; // resolves your linked build
-import { DockerSandboxProvider } from "@agentgrader/sandbox-docker";
-
-// load testCase/agentConfig from agr.yaml/agent.yaml (same as the CLI does),
-// then:
-const result = await runSingle({
-  testCase, agentConfig,
-  adapter: new AiSdkAgentAdapter(),
-  sandboxProvider: new DockerSandboxProvider(),
-  runId: crypto.randomUUID(),
-  onStep: (step) => console.log(step),
-});
+```bash
+agr trace <runId>
+agr trace <runId> --quality
 ```
 
-This imports `@agentgrader/agent-openrouter` from the top level (your
-link), while `@agentgrader/core`/`@agentgrader/sandbox-docker` come from
-the dependent project's already-published, working versions. `db` is
-optional on `RunSingleInput` - omit it if `@agentgrader/store`'s bundled
-`better-sqlite3` has a Node/Bun ABI mismatch in that project (the run still
-works, it just won't be recorded to `.agr/db.sqlite`).
+Use `--verbose` during `agr run` to watch tool calls live. Check `metrics["static-quality"]` and `metrics["llm-judge"]` for non-blocking quality signals that do not affect pass/fail.
 
-**Always wrap your script's entry point in `.catch()`.** `runSingle` itself
-never throws - it catches everything internally and resolves with
-`result.error` set - but a standalone script has no equivalent guard around
-its own top-level code. If anything outside `runSingle` throws (or any
-promise anywhere goes unhandled), the process can exit immediately with
-*zero* output: no `RUN SUMMARY`, no error, just a script that silently
-stops, identical at first glance to the `step_timeout_ms` hang above but
-with no log line to tell them apart - and any sandbox container created
-before the crash is leaked (catch it with `agr cleanup`). Use:
+To reset history, delete `.agr/db.sqlite`. Test case folders on disk are never modified; only the sandbox copy inside Docker changes.
 
-```ts
-main().catch((err) => {
-  console.error(`Fatal error: ${err?.stack || err}`);
-  process.exit(1);
-});
-```
+## CI recommendations
+
+- Install with `npm install -g agentgrader` or `bun add -g agentgrader` on the runner.
+- Validate all cases with `--strict` before benchmarking.
+- Store API keys in encrypted CI secrets, not in the repo.
+- Cap parallelism with `--concurrency` to match runner CPU and Docker limits.
+- Gate expensive suites behind labels or scheduled workflows.
+
+Full GitHub Actions example: [CI Integration](/advanced/ci-integration).
+
+## Docker checklist
+
+- Docker daemon must be running locally and on CI runners.
+- Pull base images ahead of large benches to avoid cold-start timeouts.
+- Increase `timeout_seconds` for tasks that compile heavy dependencies on first run.
+
+## Next steps
+
+- [Quickstart](/guide/quickstart): minimal end-to-end walkthrough
+- [Core Concepts](/guide/concepts): test cases, scorers, persistence
+- [Programmatic API](/advanced/programmatic-api): embed runs in custom tooling

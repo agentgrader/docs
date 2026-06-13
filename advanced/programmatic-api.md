@@ -2,9 +2,17 @@
 
 Embed Agentgrader in CI pipelines, custom tools, or evaluation scripts using the TypeScript packages published on npm.
 
-```bash
+::: code-group
+
+```bash [npm]
+npm install @agentgrader/core @agentgrader/sandbox-docker @agentgrader/agent-openrouter @agentgrader/agent-acp @agentgrader/store
+```
+
+```bash [bun]
 bun add @agentgrader/core @agentgrader/sandbox-docker @agentgrader/agent-openrouter @agentgrader/agent-acp @agentgrader/store
 ```
+
+:::
 
 ## `runSingle()`
 
