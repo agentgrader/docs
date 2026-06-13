@@ -53,6 +53,8 @@ LLM identifier. With the default OpenRouter provider, use OpenRouter model strin
 
 API gateway: `openrouter`, `openai`, or `anthropic`. Determines which environment variable is required (`OPENROUTER_API_KEY`, `OPENAI_API_KEY`, or `ANTHROPIC_API_KEY`).
 
+With `provider: anthropic`, the system prompt and tool definitions are sent with a cache-control breakpoint (`cache_control: { type: "ephemeral" }`), so Anthropic caches that prefix for 5 minutes. Repeated runs with the same `agent.yaml` (e.g. `agr bench`/matrix sweeps over many test cases) only pay full input price for the system-prompt+tools prefix on the first run; later runs within the cache window pay the discounted cache-read rate. `agr trace <runId>` shows a `prompt cache: X/Y input tokens served from cache` summary once this kicks in. No effect on other providers.
+
 ### `max_steps`
 
 **Type:** `number` (default: `30`)
@@ -144,6 +146,21 @@ mcp_servers:
     headers:
       Authorization: Bearer ${TOKEN}
 ```
+
+### `escalate_after_steps` / `escalate_model`
+
+**Type:** `number` / `string` (both optional)
+
+Model escalation: if the agent has not called `submit` after `escalate_after_steps` steps, the loop switches to `escalate_model` for all remaining steps. Useful for starting on a cheap model and falling back to a stronger one only when the cheap model is struggling - similar to how IDE chat agents (Cursor, JetBrains AI Assistant) let a single conversation move between models.
+
+```yaml
+model: claude-haiku-4-5-20251001
+provider: anthropic
+escalate_after_steps: 15
+escalate_model: claude-sonnet-4-6
+```
+
+Both fields must be set for escalation to take effect; `escalate_model` is resolved through the same `provider` auto-detection as `model`, so it can be on a different provider (e.g. escalate from an OpenRouter model to a native Anthropic one) as long as the corresponding API key is available. The switch happens at most once per run and is logged to stderr as `[escalate] step N >= escalate_after_steps (...) - switching to ...`.
 
 ## Example: toolkits, MCP, and allowlist combined
 
