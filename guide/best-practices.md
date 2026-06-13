@@ -192,6 +192,14 @@ The ACP subprocess runs on the host; file and terminal tools still execute insid
 
 Full details: [ACP Agent Adapter](/advanced/acp-agent).
 
+## Measuring custom toolkit adoption
+
+After a bench sweep, check the **TOOL USAGE BY CONFIG** section printed at the end of `agr bench`. It aggregates `tool_call` counts per agent config across all runs in that session, so you can compare adoption between configs (for example baseline vs. a config with `toolkits: [./toolkits/my-tools]`) without running `agr trace --tools` on every cell.
+
+For a single run, use `agr trace <runId> --tools`. To compare two runs side by side, use `agr compare <runIdA> <runIdB> --only-diff`.
+
+If custom CLI tools show zero calls across multiple runs on non-trivial tasks, revisit the system prompt (directive workflow) and skill descriptions before changing the tool implementations themselves.
+
 ## Troubleshooting
 
 ### Docker is not reachable

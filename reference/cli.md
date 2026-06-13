@@ -149,6 +149,8 @@ See [Bench Manifest YAML](/reference/bench-manifest-yaml) for the manifest file 
 
 Every bench run is also scored by `StaticQualityScorer` (diff size, lint violations, etc.). See [Quality scorers](/guide/concepts#quality-scorers-and-the-optimizer).
 
+After the dashboard finishes, `agr bench` also prints a **TOOL USAGE BY CONFIG** block: per agent config, aggregated counts of each `tool_call` name across all runs in that bench session. Use this to compare toolkit adoption between configs (for example default tools vs. a custom `toolkits` matrix dimension) without calling `agr trace <runId> --tools` on every cell. Per-run detail remains available via `agr trace --tools`.
+
 ## `agr validate`
 
 Validate a test case the way SWE-bench validates a candidate instance: static checks, then (when `test_command` is set) pre-patch and post-patch execution inside Docker.
