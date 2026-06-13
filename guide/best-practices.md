@@ -146,6 +146,15 @@ actually invoked before `submit`, surfaced by `agr trace --quality` and a
 it just turns "is the agent actually using the tools I gave it" from a manual
 trace-reading exercise into a structured, comparable signal.
 
+A `MISSING` result is a *diagnostic* signal, not something prompt wording
+reliably fixes. On easy tasks, a model that is confident its first attempt is
+correct may skip verification entirely (no test command of any kind, not even
+a generic `pytest`) rather than switch to the toolkit's `run-tests`, and
+stronger wording ("you MUST...", "X is the ONLY way to...") can make adoption
+*worse* by competing for attention on a task the model already considers
+trivial. Treat persistent `MISSING` results as a cue to look at task
+difficulty and the model's own confidence, not just at your system prompt.
+
 ## CI recommendations
 
 - Install with `npm install -g agentgrader` or `bun add -g agentgrader` on the runner.
