@@ -166,6 +166,15 @@ and `new-tool` on every changed file") tends to get picked up immediately,
 even unrequired - whereas a standalone new step competes for the agent's
 attention the same way stronger prompt wording does (see above).
 
+**Caveat: don't draw conclusions from a single run.** Tool adoption on small,
+synthetic tasks (e.g. one-file leetcode-style fixtures) varies a lot
+run-to-run independent of toolkit design - the same agent config can adopt
+every "before submit" tool on one task and skip all of them, including ones
+it previously adopted, on another equally trivial task. A single A/B run
+cannot reliably attribute an adoption change to a prompt or toolkit tweak;
+either average over several runs, or use a task where the model isn't
+confident enough to skip verification outright.
+
 ## CI recommendations
 
 - Install with `npm install -g agentgrader` or `bun add -g agentgrader` on the runner.
