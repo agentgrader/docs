@@ -117,6 +117,22 @@ adapter). Use `agr trace <runId> --tools` to check adoption either way -
 `executeCommand`-equivalent terminal calls are bucketed by command name the
 same as for the AI SDK adapter.
 
+### Scaffolding a new toolkit tool
+
+Use `agr toolkit-add <name>` to generate the `bin/<name>` script and
+`.claude/skills/<name>/SKILL.md` stubs for a new toolkit command, in the
+layout both adapters expect:
+
+```bash
+agr toolkit-add find-usages --dir ./toolkits/jetbrains-tools
+```
+
+This creates `./toolkits/jetbrains-tools/bin/find-usages` (executable stub)
+and `./toolkits/jetbrains-tools/.claude/skills/find-usages/SKILL.md`. Fill in
+the script's implementation and the skill's description, then reference the
+toolkit directory from `toolkits:` in an agent config or test case. `--dir`
+defaults to `./toolkit`.
+
 ## Programmatic API
 
 ```typescript

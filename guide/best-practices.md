@@ -155,6 +155,15 @@ stronger wording ("you MUST...", "X is the ONLY way to...") can make adoption
 trivial. Treat persistent `MISSING` results as a cue to look at task
 difficulty and the model's own confidence, not just at your system prompt.
 
+### Scaffolding new toolkit tools
+
+Run `agr toolkit-add <name> [--dir <toolkitDir>]` to generate a `bin/<name>`
+script stub and matching `.claude/skills/<name>/SKILL.md` stub in the layout
+described in [ACP Agent Adapter](/advanced/acp-agent). Fill in the
+implementation and description, then reference `<toolkitDir>` from
+`toolkits:` in an agent config or test case - no more hand-copying an
+existing tool's pair of files and editing every reference.
+
 ### Design new toolkit tools as part of an existing workflow step
 
 When adding a new optional `toolkits` tool, slot it into a workflow step the
