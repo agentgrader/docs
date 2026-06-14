@@ -256,6 +256,34 @@ agr trace 3f1c2e2a-8b4d-4e1f-9c3a-1a2b3c4d5e6f --tools
 
 `--tools` is especially useful for checking whether a custom toolkit, MCP server, or Agent Skill was actually used by the agent versus only made available to it. For example, if you wire in a custom toolkit but its tools show a count of `0`, the agent saw the tool but chose not to call it, which may be a sign the system prompt needs to nudge it more explicitly.
 
+## `agr list`
+
+Browse saved runs from `.agr/db.sqlite` in an interactive terminal UI: a scrollable run list, a detail view (run metadata, agent diff, trace preview), and a side-by-side diff compare between any two runs.
+
+```bash
+agr list
+```
+
+### Options
+
+| Flag | Default | Description |
+|---|---|---|
+| `--db <path>` | `.agr/db.sqlite` | Path to the SQLite database to read. |
+| `--limit <n>` | `100` | Maximum number of most-recent runs to load. |
+| `--plain` | `false` | Print a plain text list instead of the interactive UI. Used automatically when stdout is not a TTY. |
+
+### Examples
+
+```bash
+# Open the interactive run browser
+agr list
+
+# Print a plain text summary of the 20 most recent runs
+agr list --limit 20 --plain
+```
+
+In the interactive UI, use the arrow keys (or `j`/`k`) to move through the run list, `Enter` to open a run's detail view (agent diff plus a trace preview), `c` to start a diff comparison between two runs, `b`/`Esc` to go back, and `q` to quit.
+
 ## `agr compare`
 
 Compare the step traces of two completed runs side by side. Useful after a matrix or bench run with multiple agent configs on the same test case: see when and where the agents diverged (different tool calls, files, or reasoning).
