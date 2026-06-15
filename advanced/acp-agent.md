@@ -196,8 +196,13 @@ now sees the task's sandboxed `/app` fixture files - the same filesystem
 `sandboxed: true` requires a sandbox provider that implements `spawnStdio`
 (currently only `@agentgrader/sandbox-docker`); on other providers, the
 connection attempt fails and is logged the same as any other MCP connection
-error. This flag is not yet forwarded to ACP agents - it is only read by
-agent-openrouter's own MCP connection loop.
+error. It is only read by agent-openrouter's own MCP connection loop: for
+ACP runs, `convertMcpServersForAcp` skips any stdio `mcp_servers:` entry with
+`sandboxed: true` (logging a warning) rather than forwarding its sandbox-only
+`command`/`args` (e.g. `/app/...`) for the ACP agent subprocess to spawn on
+the host, where they don't exist. Supporting this for ACP would require ACP
+agent subprocesses themselves to spawn `mcpServers` stdio commands inside the
+sandbox container, which is out of scope for agentgrader's adapters.
 
 ### Scaffolding a new toolkit tool
 
