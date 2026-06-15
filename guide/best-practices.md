@@ -304,6 +304,22 @@ agent already takes (see above), require it via
 `require_tools_before_submit`, or accept it as a convenience tool whose
 value is for ACP-agent parity / human use rather than organic LLM adoption.
 
+**An exploration tool's adoption rate is a property of the task, not just
+the tool.** A "Go to Test"/"Create Test" navigation tool (locate a module's
+test file and report which functions are still untested) was added to the
+exploration-adjacent category, the same category as `view-structure` and
+`show-diff` from the section above. On a task whose prompt already named the
+untested functions ("test_calc.py only has a test for add, add tests for
+subtract and multiply too"), adoption was 0, because the prompt had already
+done the tool's job: there was nothing left to discover. On a second fixture
+whose prompt left that gap for the agent to find ("add tests for any
+function in inventory.py that doesn't already have a test"), the same tool
+was adopted on both runs, and pulled a previously-inconsistent
+`generate-test-stub` step along with it. Before concluding that an
+exploration tool has low adoption, check whether the task prompt already
+states the information the tool would surface; if it does, 0 adoption is the
+correct outcome, not a sign the tool is unused.
+
 ### A/B testing a `toolkits` dimension with `--matrix`
 
 When a `--matrix` varies `dimensions.toolkits` (e.g. `[[], ["./toolkits/my-tools"]]`)
