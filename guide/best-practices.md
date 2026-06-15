@@ -61,7 +61,7 @@ agr validate test-cases/fix-greeting/agr.yaml
 agr validate test-cases/fix-greeting/agr.yaml --strict
 ```
 
-`--strict` fails when SWE-bench fields (`test_command`, `fail_to_pass`, `pass_to_pass`) are missing. Use it in CI before any `agr bench` step.
+`--strict` fails when SWE-bench fields (`test_command`, `fail_to_pass`, `pass_to_pass`) are missing. Use it in CI before any `agr bench` step. See [CI workflows](/guide/ci-workflows).
 
 ## Fill in regression fields deliberately
 
@@ -72,7 +72,7 @@ For SWE-bench style scoring, `agr validate` does **not** auto-populate `fail_to_
 3. Note which tests must stay green (`pass_to_pass`).
 4. Re-run `agr validate --strict` to confirm execution checks pass.
 
-See [Test Case YAML](/reference/test-case-yaml) for the full schema.
+See [Test Case YAML](/reference/test-case-yaml) for the full schema. TAP pitfalls: [Troubleshooting](/guide/troubleshooting#tap-and-fail_to_pass).
 
 ## Set budget guardrails in YAML
 
@@ -87,7 +87,7 @@ success:
 timeout_seconds: 300
 ```
 
-Tune limits per task difficulty. Tight limits catch runaway tool loops early.
+Tune limits per task difficulty. Tight limits catch runaway tool loops early. More on scorers: [Scoring & quality](/guide/scoring).
 
 ## Choose the right bench mode
 
@@ -98,7 +98,7 @@ Tune limits per task difficulty. Tight limits catch runaway tool loops early.
 | Hyperparameter sweep (model × temperature) | `agr bench --matrix matrix.yaml --suite test-cases/` |
 | Reproducible team config in one file | `agr bench --manifest bench.yaml` |
 
-Use [Bench Manifest YAML](/reference/bench-manifest-yaml) when you want suite paths and agent globs checked into one file. Use `--matrix` when you need a cartesian product of dimensions, not hand-written agent files.
+Use [Bench Manifest YAML](/reference/bench-manifest-yaml) for suite + agent globs in one file. Use [Optimizer Matrix YAML](/reference/matrix-yaml) for cartesian products. Guide: [Optimizer matrices](/guide/optimizer-matrices).
 
 ## Compare adapters fairly
 
@@ -115,304 +115,37 @@ See [ACP Agent Adapter](/advanced/acp-agent) for config fields and tool routing.
 
 ## Debug failed runs
 
-Every run gets a UUID stored in `.agr/db.sqlite`:
+Every run gets a UUID stored in `.agr/db.sqlite`. Start with `agr trace <runId>` and `--quality` / `--tools` as needed.
 
-```bash
-agr trace <runId>
-agr trace <runId> --quality
-```
+Full workflow: [Debugging failed runs](/guide/debugging).
 
-Use `--verbose` during `agr run` to watch tool calls live. Check `metrics["static-quality"]` and `metrics["llm-judge"]` for non-blocking quality signals that do not affect pass/fail.
+## Toolkits
 
-To reset history, delete `.agr/db.sqlite`. Test case folders on disk are never modified; only the sandbox copy inside Docker changes.
+Custom CLI tools and skills need deliberate design, adoption tracking, and optional `setup.sh` hooks.
 
-### Measuring toolkit adoption
-
-`agr trace <runId> --tools` and the `agr bench` `TOOL USAGE BY CONFIG`
-footer break down `executeCommand` (AI SDK adapter) and `terminal/create`
-(ACP adapter) calls by the *first word of the command*, e.g.
-`executeCommand:find-usages` or `terminal/create:pytest`, instead of one
-opaque `executeCommand`/`terminal/create` total. This makes it possible to
-see, at a glance, whether a custom `toolkits` CLI tool (vs. generic shell
-exploration like `find`/`grep`/`cd`) is actually being used, and to compare
-adoption across a `--matrix` of `toolkits` dimensions.
-
-With `provider: anthropic`/`openai`, each toolkit skill is also registered
-as a first-class tool named `tool_<name_with_underscores>` (e.g.
-`tool_rename_symbol` for `rename-symbol`), separate from
-`executeCommand`/`terminal/create`. `agr trace --tools` shows these calls
-under their own `tool_<name>` row, and `require_tools_before_submit`/
-`track_tools` recognize them as usages of `<name-with-hyphens>` alongside
-the `executeCommand:<name>` form, so a model is credited for adoption no
-matter which mechanism it picks.
-
-If you know up front which toolkit commands an agent *should* use, set
-[`require_tools_before_submit`](/reference/agent-config-yaml#require-tools-before-submit)
-in `agent.yaml` (e.g. `["run-tests", "inspect-code"]`). Every run then
-annotates `metrics["tool-adoption"]` with which of those commands were
-actually invoked before `submit`, surfaced by `agr trace --quality` and a
-`TOOL ADOPTION BY CONFIG` footer in `agr bench`. This never blocks the run;
-it just turns "is the agent actually using the tools I gave it" from a manual
-trace-reading exercise into a structured, comparable signal.
-
-A `MISSING` result is a *diagnostic* signal, not something prompt wording
-reliably fixes. On easy tasks, a model that is confident its first attempt is
-correct may skip verification entirely (no test command of any kind, not even
-a generic `pytest`) rather than switch to the toolkit's `run-tests`, and
-stronger wording ("you MUST...", "X is the ONLY way to...") can make adoption
-*worse* by competing for attention on a task the model already considers
-trivial. Treat persistent `MISSING` results as a cue to look at task
-difficulty and the model's own confidence, not just at your system prompt.
-
-If one toolkit tool internally calls another (e.g. a `rename-symbol` that
-runs `run-tests` on the affected files after renaming, instead of leaving
-verification to the agent), the wrapped tool still counts as "used" for
-`require_tools_before_submit`, as long as it prints a self-identifying
-`<name>: ...` line to its output (the way `run-tests` prints
-`run-tests: running <files>`). Without that marker line, a wrapped call is
-invisible to the adoption check, since the agent never invoked the wrapped
-command itself.
-
-For optional toolkit tools that aren't ready (or aren't meant) to be
-required, set [`track_tools`](/reference/agent-config-yaml#track-tools)
-instead. It uses the same detection as `require_tools_before_submit`, but
-only annotates `metrics["tool-usage"]` with a used/unused breakdown - it
-never affects `metrics["tool-adoption"]` or pass/fail. This is useful for
-watching a newly added tool's adoption rate across many runs before deciding
-whether it earns a spot in `require_tools_before_submit`.
-
-### Scaffolding new toolkit tools
-
-Run `agr toolkit-add <name> [--dir <toolkitDir>]` to generate a `bin/<name>`
-script stub and matching `.claude/skills/<name>/SKILL.md` stub in the layout
-described in [ACP Agent Adapter](/advanced/acp-agent). Fill in the
-implementation and description, then reference `<toolkitDir>` from
-`toolkits:` in an agent config or test case - no more hand-copying an
-existing tool's pair of files and editing every reference.
-
-### Design new toolkit tools as part of an existing workflow step
-
-When adding a new optional `toolkits` tool, slot it into a workflow step the
-agent is *already* following alongside a tool it already adopts, rather than
-introducing it as its own standalone step (and especially rather than adding
-it straight to `require_tools_before_submit`). A tool grouped with an
-already-adopted tool for the same step (e.g. "before submit, run `lint-tool`
-and `new-tool` on every changed file") tends to get picked up immediately,
-even unrequired - whereas a standalone new step competes for the agent's
-attention the same way stronger prompt wording does (see above).
-
-**Caveat: don't draw conclusions from a single run.** Tool adoption on small,
-synthetic tasks (e.g. one-file leetcode-style fixtures) varies a lot
-run-to-run independent of toolkit design - the same agent config can adopt
-every "before submit" tool on one task and skip all of them, including ones
-it previously adopted, on another equally trivial task. A single A/B run
-cannot reliably attribute an adoption change to a prompt or toolkit tweak;
-either average over several runs, or use a task where the model isn't
-confident enough to skip verification outright.
-
-**Caveat: a redundant tool can stay unused even on a perfect-fit task.** If a
-new tool's purpose overlaps with an existing, already-adopted tool's (e.g. a
-"can I safely delete X?" tool vs. a general "find all references to X" tool
-that can answer the same question), the agent may default to the familiar
-tool even on a task designed specifically to need the new one - not because
-the new tool failed to register, but because the existing tool already
-satisfies the immediate question. This is distinct from the
-overconfidence-driven MISSING above: the agent *did* verify before acting, it
-just used tool A where you expected tool B. Before adding a tool that
-overlaps with an existing one, consider whether it should instead be an
-additional mode/flag on the existing tool (the existing tool then surfaces
-both answers in one call) rather than a separate command competing for the
-same moment in the workflow.
-
-**Confirmed fix: fold the redundant tool's output into the adopted tool's
-output.** A "can I delete X?" tool (`safe-delete`) and a "where is X used?"
-tool (`find-usages`) were tested side by side on two different fixtures - a
-single-file zero-usage case and a multi-file case with several call sites
-per symbol. Both runs adopted only `find-usages` (3/3 calls including the
-to-be-deleted symbol) and never called `safe-delete` (0/3), independent of
-usage-pattern complexity or prompt ordering. Rather than removing the
-redundant tool outright, its check was merged directly into the adopted
-tool's output: `find-usages` now appends a one-line "no usages outside its
-own definition - likely safe to delete" verdict whenever a symbol's only
-match is its own declaration. A follow-up regression run confirmed the
-agent still adopted `find-usages`, still removed the dead function, and did
-not short-circuit on the new verdict line. This gets the redundant tool's
-information to the agent for free, on the call it was already going to make,
-without adding a competing step to the workflow.
-
-**The redundancy generalizes across task shapes, not just renames.** On a
-task whose entire prompt was "remove this dead function and its now-unused
-import, then run the tests" (a textbook fit for `safe-delete` and
-`optimize-imports --fix`), the agent again called only `find-usages` to
-confirm the function had no callers before deleting it by hand, and never
-touched `safe-delete`, `optimize-imports`, or `inspect-code`. Combined with
-the two fixtures above (both renames), this is now three different task
-shapes where a generic "explore/verify" tool the agent already trusts
-(`find-usages`, or a plain `pytest`) fully substitutes for a purpose-built
-toolkit tool. Introducing a lint issue alongside the main change does not by
-itself push adoption toward `inspect-code`/`optimize-imports`: once the
-agent's own verification step says "safe", it has no remaining reason to run
-a second, unrequested check.
-
-**`agr trace --quality` now shows *how* each required/tracked tool was
-adopted, not just whether it was.** The fold-in pattern above (e.g.
-`inspect-code` findings folded into `show-diff`'s output) flips
-`tool-adoption` from MISSING to OK without the agent ever calling the
-wrapped tool directly. That distinction used to be invisible: OK looked the
-same whether the agent called the tool itself or only received its output
-secondhand. `metrics["tool-adoption"]` and `metrics["tool-usage"]` now record
-a per-tool `usedVia: "direct" | "wrapped"`, and `agr trace --quality` prints
-one line per required/tracked tool: `run-tests: OK (called directly)` vs.
-`inspect-code: OK (via another tool's output)` vs. `MISSING`. Runs recorded
-before this change still print `OK (mechanism not recorded for this run)`
-rather than a misleading MISSING. This makes the *mechanism* of adoption
-part of the trace output itself, so a fold-in's effect is visible on every
-future run, not just the one where it was first measured by hand.
-
-**`bucketToolName` now looks past a leading `cd <dir> &&`/`cd <dir>;`
-prefix.** A re-run of the dead-code-removal task above showed the
-fold-in's effect on `inspect-code` (now credited via `show-diff`, closing
-half of a previously-MISSING `tool-adoption`), but `run-tests` was still
-MISSING even though the agent *had* run the tests, via `executeCommand
-{"command":"cd /app && python -m pytest test_mathutils.py test_consumer.py
--v"}`. The bucketing took "the first word of the command" literally, so this
-collapsed to `executeCommand:cd` - hiding the real command (`python`) behind
-the directory change every agent makes before running anything. `cd`-prefix
-stripping (including chained `cd a && cd b && ...`) now makes
-`executeCommand:python`/`terminal/create:pytest`-style buckets visible
-regardless of whether the agent `cd`'d first. This doesn't change
-`run-tests`'s MISSING verdict here (raw `pytest` still isn't the toolkit's
-`run-tests` wrapper - that's a real, separate adoption gap), but it makes
-`track_tools` entries for plain commands (e.g. `pytest`, `git`) accurate
-even behind a `cd`, which previously undercounted them.
-
-**A "surgical edit" tool can stay unused regardless of file size, if
-`readFile`/`writeFile` already cover the same edit.** A tool that adds a
-single line to a file (e.g. an "Auto Import" quick-fix that inserts a
-missing `import` statement) was tested on a one-file task whose target grew
-from ~7 lines to ~70 lines across iterations, specifically to check whether
-a bigger file would make the full-file `readFile`+`writeFile` round trip
-expensive enough that the agent would prefer the targeted tool instead.
-Adoption stayed at 0 at both sizes: the agent read the whole file, wrote the
-whole file back with the import and the rest of its edit included, and never
-reached for the dedicated tool - the larger file mostly showed up as extra
-cost (more ad-hoc verification steps), not a change in editing strategy. If
-a toolkit tool's value proposition is "fewer tokens for the same edit" rather
-than "an edit the agent couldn't otherwise make", don't expect file size
-alone to drive adoption; either fold its check into a tool from a step the
-agent already takes (see above), require it via
-`require_tools_before_submit`, or accept it as a convenience tool whose
-value is for ACP-agent parity / human use rather than organic LLM adoption.
-
-**An exploration tool's adoption rate is a property of the task, not just
-the tool.** A "Go to Test"/"Create Test" navigation tool (locate a module's
-test file and report which functions are still untested) was added to the
-exploration-adjacent category, the same category as `view-structure` and
-`show-diff` from the section above. On a task whose prompt already named the
-untested functions ("test_calc.py only has a test for add, add tests for
-subtract and multiply too"), adoption was 0, because the prompt had already
-done the tool's job: there was nothing left to discover. On a second fixture
-whose prompt left that gap for the agent to find ("add tests for any
-function in inventory.py that doesn't already have a test"), the same tool
-was adopted on both runs, and pulled a previously-inconsistent
-`generate-test-stub` step along with it. Before concluding that an
-exploration tool has low adoption, check whether the task prompt already
-states the information the tool would surface; if it does, 0 adoption is the
-correct outcome, not a sign the tool is unused.
-
-### A/B testing a `toolkits` dimension with `--matrix`
-
-When a `--matrix` varies `dimensions.toolkits` (e.g. `[[], ["./toolkits/my-tools"]]`)
-but `base.system_prompt` is shared across both arms, the no-toolkit arm's
-agent is still *told about* tools it doesn't have. It will try to call them
-anyway, hit `command not found` (exit 127), then fall back to manual
-`readFile`/`writeFile`/`executeCommand`. This adds at least one wasted
-step/reasoning turn to the baseline - the toolkit arm's measured cost and
-step-count advantage is therefore partly "has the tool" vs. "was told about
-a tool it doesn't have", not purely "has the tool" vs. "never heard of it".
-
-Mitigate the wasted-step part (without a full per-dimension system prompt,
-which `--matrix` doesn't support) by adding a short fallback note after the
-tool list in `base.system_prompt`:
-
-```
-Note: in some sandboxes the tools above are not installed. If running one
-of them fails with "command not found", don't retry it - immediately fall
-back to `executeCommand`/`readFile`/`writeFile` to do that step manually
-and continue with the rest of the workflow below.
-```
-
-This lets the no-toolkit arm recognize `exit 127` and move straight to a
-manual edit instead of spending a turn re-deciding to do so, tightening the
-A/B comparison toward "has the tool" vs. "doesn't have it" rather than
-"doesn't have it and is confused about why".
-
-### Toolkit setup hooks (`setup.sh`)
-
-A persistent `run-tests`-MISSING result (consistent since the metric was
-introduced) turned out not to be a prompt or adoption problem at all: the
-fixtures used a bare `python:3.11` image, which doesn't ship `pytest`. Both
-the toolkit's `run-tests` wrapper *and* the agent's own first-choice
-`python -m pytest` failed identically with `No module named pytest` - the
-agent then abandoned pytest entirely and fell back to ad-hoc `python -c`
-assertions, which still let the task pass but meant no test runner (custom
-or standard) was ever successfully invoked.
-
-A toolkit can now ship a `setup.sh` at its root, executed once when the
-toolkit is injected into the sandbox (before the agent's prompt turn
-starts) - see [ACP Agent Adapter](/advanced/acp-agent#using-toolkits-with-acp-agents).
-`toolkits/jetbrains-tools/setup.sh` runs `pip install -q pytest` if missing.
-After this fix, the agent's own `python -m pytest test_x.py` succeeded on
-the first try - fewer steps, lower cost, no failed-command detour.
-
-`run-tests` itself was also given a defense-in-depth self-install (the same
-`pip install pytest`-if-missing check), so it works correctly even without
-the toolkit's `setup.sh` having run.
-
-Note this did **not** flip `run-tests` from MISSING to adopted: once
-`python -m pytest <file>` works, it satisfies the agent's verification need
-on these small, single-test-file fixtures just as well as `run-tests` would
-- the same "redundant tool" dynamic as above, except the competing tool here
-is a standard command agentgrader can't extend with a verdict line. Treat
-`run-tests` adoption as most useful as a signal on larger repos with many
-test files, where finding *which* test file to run has real value over a
-blind `pytest`.
+Full guide: [Toolkits guide](/guide/toolkits).
 
 ## CI recommendations
 
-- Install with `npm install -g agentgrader` or `bun add -g agentgrader` on the runner.
-- Validate all cases with `--strict` before benchmarking.
-- Store API keys in encrypted CI secrets, not in the repo.
-- Cap parallelism with `--concurrency` to match runner CPU and Docker limits.
-- Gate expensive suites behind labels or scheduled workflows.
+Validate with `--strict`, gate with `--fail-on-failure`, upload `--report` artifacts, and compare PR benches to baselines.
 
-Full GitHub Actions example: [CI Integration](/advanced/ci-integration).
+Full checklist: [CI workflows](/guide/ci-workflows). GitHub Actions example: [CI Integration](/advanced/ci-integration).
 
 ## Docker checklist
 
-- Docker daemon must be running locally and on CI runners.
-- Pull base images ahead of large benches to avoid cold-start timeouts.
-- Increase `timeout_seconds` for tasks that compile heavy dependencies on first run.
+- Docker daemon must be running locally and on CI runners (or use `--sandbox e2b`)
+- Pull base images ahead of large benches to avoid cold-start timeouts
+- Increase `timeout_seconds` for tasks that compile heavy dependencies on first run
+
+See [Choosing a sandbox](/guide/sandboxes).
 
 ### Validate a SWE-bench fixture's `success:` command before trusting FAIL
 
-A `FAIL` on a SWE-bench style task can mean the agent's patch is wrong, or it can
-mean the fixture's own `success:` command never passes even on the *unmodified*
-fixture (a broken dependency pin, an unpinned transitive build dependency, a
-flaky registry timeout). Before treating repeated `FAIL` results on a given
-fixture as an agent-quality signal, run the `success:` command once against the
-unmodified fixture (e.g. in a throwaway Docker container) to confirm it can pass
-at all. A common culprit for Python fixtures: `pip install -e ".[test]"` without
-`--no-build-isolation` builds in an isolated venv populated from
-`pyproject.toml`'s `[build-system] requires`, so a version pin applied only to
-the outer `pip install` (e.g. `pip install "setuptools<60"`) does not protect the
-isolated build env, which can resolve a newer, incompatible build tool. If the
-`success:` command fails this way, fix it once (e.g. add the same pin to
-`[build-system] requires`) and re-validate before spending bench budget on that
-fixture again.
+A `FAIL` on a SWE-bench style task can mean the agent's patch is wrong, or it can mean the fixture's own `success:` command never passes even on the *unmodified* fixture (a broken dependency pin, an unpinned transitive build dependency, a flaky registry timeout). Before treating repeated `FAIL` results on a given fixture as an agent-quality signal, run the `success:` command once against the unmodified fixture (e.g. in a throwaway Docker container) to confirm it can pass at all. A common culprit for Python fixtures: `pip install -e ".[test]"` without `--no-build-isolation` builds in an isolated venv populated from `pyproject.toml`'s `[build-system] requires`, so a version pin applied only to the outer `pip install` (e.g. `pip install "setuptools<60"`) does not protect the isolated build env, which can resolve a newer, incompatible build tool. If the `success:` command fails this way, fix it once (e.g. add the same pin to `[build-system] requires`) and re-validate before spending bench budget on that fixture again.
 
 ## Next steps
 
 - [Quickstart](/guide/quickstart): minimal end-to-end walkthrough
-- [Core Concepts](/guide/concepts): test cases, scorers, persistence
+- [Recipes](/guide/recipes): copy-paste workflows
+- [Troubleshooting](/guide/troubleshooting): common failure modes
 - [Programmatic API](/advanced/programmatic-api): embed runs in custom tooling
