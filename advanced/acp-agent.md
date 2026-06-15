@@ -155,6 +155,21 @@ just to stop dropping the config. This is a separate mechanism from
 sandbox and describes them via the system-prompt addendum, while
 `mcp_servers:` is for agents that speak MCP directly.
 
+**Sandbox caveat**: a `command`-based (stdio) `mcp_servers:` entry is
+spawned by the *adapter process itself* on the host - for agent-openrouter
+via `Experimental_StdioMCPTransport`, and for ACP by the agent subprocess
+(which also runs on the host) when it receives the forwarded `mcpServers`
+list. Neither path runs the server inside the Docker sandbox the way
+`toolkits:` does (whose `bin/` scripts are copied into the sandbox and
+invoked via `sandbox.exec`/`terminal/create`). So a stdio MCP server that
+wraps CLI tools operating on "the current project" will see the host
+filesystem wherever it was spawned, not the sandboxed task's fixture files
+at `/app`. Such a server is useful for tasks about its own host-side
+checkout (e.g. a toolkit's own source), but is not yet a sandbox-aware
+substitute for `toolkits:` on benchmark tasks - that would require
+agentgrader to spawn `mcp_servers` stdio commands inside the sandbox
+container (e.g. via `docker exec -i`, bridging stdio).
+
 ### Scaffolding a new toolkit tool
 
 Use `agr toolkit-add <name>` to generate the `bin/<name>` script and
