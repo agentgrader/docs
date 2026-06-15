@@ -127,7 +127,7 @@ Exit codes: `0` once the run completes by default, even when the agent scores `F
 | Flag | Default | Description |
 |---|---|---|
 | `<testCase>` | Required | Path to an `agr.yaml` file, a directory containing one, or a test case name/directory basename (see above). |
-| `--config <path>` | Built-in default | Path to an agent config YAML. If omitted, uses `gpt-4o-mini` with `max_steps: 20`. |
+| `--config <path>` | Required if not in agr.yaml | Path to an agent config YAML. Required when the test case's `agr.yaml` does not specify `agent_config:`. |
 | `--adapter <name>` | `ai-sdk` | Agent adapter: `ai-sdk` (default AI SDK loop) or `acp` (external ACP agent). See [ACP Agent Adapter](/advanced/acp-agent). |
 | `--verbose` | `false` | Show full per-step detail (tool name + content preview) in the live step list, instead of the compact step/cost counter. |
 | `--fail-on-failure` | `false` | Exit with code 1 if the run does not pass. |
@@ -144,23 +144,20 @@ Exit codes: `0` once the run completes by default, even when the agent scores `F
 ### Examples
 
 ```bash
-# Default agent (gpt-4o-mini, 20 steps)
-agr run test-cases/fix-greeting/agr.yaml
-
-# Custom agent config
-agr run test-cases/fix-greeting/agr.yaml --config agent.yaml
+# Name-based lookup (resolves tasks/fix-greeting/agr.yaml automatically)
+agr run fix-greeting --config agent.yaml
 
 # Watch tool calls and messages in real time
-agr run test-cases/fix-greeting/agr.yaml --config agent.yaml --verbose
+agr run fix-greeting --config agent.yaml --verbose
 
 # External ACP agent (Claude Code, Cursor Agent, ...)
-agr run test-cases/fix-greeting/agr.yaml --config agent-acp.yaml --adapter acp
+agr run fix-greeting --config agent-acp.yaml --adapter acp
 
 # CI gate: fail the job when the agent does not pass
-agr run test-cases/fix-greeting/agr.yaml --config agent.yaml --fail-on-failure
+agr run fix-greeting --config agent.yaml --fail-on-failure
 
 # LLM judge with a pass/fail gate
-agr run test-cases/fix-greeting/agr.yaml --config agent.yaml --llm-judge --judge-gate --judge-min-score 0.75
+agr run fix-greeting --config agent.yaml --llm-judge --judge-gate --judge-min-score 0.75
 ```
 
 ## `agr bench`
