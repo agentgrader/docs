@@ -46,110 +46,52 @@ Alternatively, export the variable in your shell:
 export OPENROUTER_API_KEY=sk-or-...
 ```
 
-To call Anthropic or OpenAI directly, set `provider: anthropic` or `provider: openai` in your agent config (see [Agent Config](/reference/agent-config-yaml)) and provide `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` instead.
+To call Anthropic or OpenAI directly, set `provider: anthropic` or `provider: openai` in your agent config (see [Agent Config](/reference/agent-config-yaml)) and provide `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` instead. The scaffold created in the next step defaults to `provider: anthropic` with `claude-haiku-4-5`, so `ANTHROPIC_API_KEY` is the fastest path.
 
-## 3. Create a minimal test case
+## 3. Scaffold a project
 
-Create a project directory and add an agent config plus a single test case with a fixture:
+Create a project directory and let `agr init` generate a ready-to-run agent config and a tiny, self-contained test case:
 
 ```bash
-mkdir -p my-benchmark/test-cases/fix-greeting/fixture/src
-cd my-benchmark
+mkdir my-benchmark && cd my-benchmark
+agr init
 ```
 
-**`agent.yaml`**: which model to use:
+This creates:
 
-```yaml
-name: Baseline Agent
-model: openai/gpt-4o-mini
-max_steps: 15
-temperature: 0.2
-system_prompt: |
-  You are a software developer. Fix the coding task in the sandbox.
-  Use executeCommand to run tests. Use readFile and writeFile to edit code.
-  Call submit when all tests pass.
-```
+- **`agent.yaml`**: a baseline agent config (`claude-haiku-4-5`, `provider: anthropic`, `max_steps: 15`)
+- **`tasks/hello-world/agr.yaml`**: a test case that asks the agent to implement `add(a, b)` in `math.js`
+- **`tasks/hello-world/fixture/`**: the starter project for that test case (`math.js` + `math.test.js`, checked with Node's built-in test runner, so no `npm install` is needed inside the sandbox)
 
-**`test-cases/fix-greeting/fixture/package.json`**:
-
-```json
-{
-  "name": "fixture",
-  "type": "module",
-  "scripts": {
-    "test": "node --test --test-reporter=tap src/greet.test.js"
-  }
-}
-```
-
-**`test-cases/fix-greeting/fixture/src/greet.js`**:
-
-```js
-export function greet(name) {
-  return `Hello, ${name}`;
-}
-```
-
-**`test-cases/fix-greeting/fixture/src/greet.test.js`**:
-
-```js
-import { test } from "node:test";
-import assert from "node:assert";
-import { greet } from "./greet.js";
-
-test("greet returns a friendly message", () => {
-  assert.equal(greet("World"), "Hello, World!");
-});
-```
-
-**`test-cases/fix-greeting/agr.yaml`**: the test case definition:
-
-```yaml
-name: fix-greeting
-description: greet() is missing the exclamation mark
-fixture: ./fixture
-prompt: |
-  The greet() function in src/greet.js should return "Hello, World!" but
-  currently returns "Hello, World". Fix the function so all tests pass.
-agent_config: ../../agent.yaml
-success:
-  - run: npm test
-    expect: { exit_code: 0 }
-timeout_seconds: 300
-```
-
-The `agent_config` field points to your default `agent.yaml` relative to this file. With it set, `agr run` needs no `--config` flag. That is a good default for one test case paired with one standard agent config.
+If you'd rather start from an empty project and write your own test cases by hand, use `agr init --blank` instead. It writes only `agent.yaml` and an empty `tasks/` directory; see [Core Concepts](/guide/concepts) for the `agr.yaml` schema.
 
 ## 4. Run your first evaluation
 
 From `my-benchmark/` (where your `.env` lives):
 
 ```bash
-agr run test-cases/fix-greeting/agr.yaml
+agr run hello-world --verbose
 ```
 
-Because `agent_config` is set in `agr.yaml`, Agentgrader loads `../../agent.yaml` automatically. You can still override with `--config` when experimenting with a different agent.
+`hello-world` is the test case's `name:` from `tasks/hello-world/agr.yaml`, so there's no need to type out the full path. Because `agent_config` is set in `agr.yaml`, Agentgrader loads `../../agent.yaml` automatically. You can still override with `--config` when experimenting with a different agent.
 
 Expected flow:
 
 1. Agentgrader copies the fixture into a fresh Docker container.
-2. The agent reads files, runs `npm test`, and edits code.
+2. The agent reads `math.js`, implements `add()`, and runs `node --test math.test.js`.
 3. A run summary prints pass/fail, step count, cost, and duration.
-
-To watch agent steps as they happen (useful while debugging):
-
-```bash
-agr run test-cases/fix-greeting/agr.yaml --config agent.yaml --verbose
-```
 
 Example verbose output:
 
 ```
-[step 1] tool_call: readFile({"path":"src/greet.js"})
-[step 2] tool_result: readFile -> export function greet(name) { ...
-[step 3] tool_call: executeCommand({"command":"npm test"})
+[step 1] tool_call: readFile({"path":"math.js"})
+[step 2] tool_result: readFile -> function add(a, b) { ...
+[step 3] tool_call: writeFile({"path":"math.js", ...})
+[step 4] tool_call: executeCommand({"command":"node --test math.test.js"})
 ...
 ```
+
+Once you've added more test cases under `tasks/`, run `agr list-tests` to see every test case's `name`, path, and description, then refer to any of them the same way: `agr run <name>`.
 
 ## 5. Run a benchmark (optional)
 
@@ -157,7 +99,7 @@ Point `agr bench` at a directory of test cases and one or more agent configs:
 
 ```bash
 agr bench \
-  --suite test-cases/ \
+  --suite tasks/ \
   --config agent.yaml
 ```
 

@@ -40,8 +40,16 @@ This creates:
 After scaffolding, set `ANTHROPIC_API_KEY` in your environment and run:
 
 ```bash
-agr run tasks/hello-world/agr.yaml --config agent.yaml --verbose
+agr run hello-world --verbose
 ```
+
+Use `--blank` if you'd rather start from an empty project and write your own test cases under `tasks/`:
+
+```bash
+agr init --blank
+```
+
+This writes only `agent.yaml` and an empty `tasks/` directory, skipping the `hello-world` sample. See [Core Concepts](/guide/concepts) for the `agr.yaml` schema, then run `agr list-tests` to confirm your test cases are found.
 
 ### Options
 
@@ -49,6 +57,7 @@ agr run tasks/hello-world/agr.yaml --config agent.yaml --verbose
 |---|---|---|
 | `[dir]` | `.` | Directory to scaffold into. Created if it does not exist. |
 | `--force` | `false` | Overwrite `agent.yaml` if it already exists. Without it, `agr init` refuses to run on a directory that already has an `agent.yaml`, similar to `git init` on an existing repo. |
+| `--blank` | `false` | Only write `agent.yaml` and an empty `tasks/` directory, without the `hello-world` sample test case. |
 
 ### Examples
 
@@ -61,6 +70,34 @@ agr init my-project
 
 # Re-scaffold, overwriting agent.yaml
 agr init my-project --force
+
+# Blank project: agent.yaml + empty tasks/, no sample test case
+agr init --blank
+```
+
+## `agr list-tests`
+
+Recursively scan a directory for test case files (`agr.yaml` and similar) and print each one's `name`, relative path, and description. Useful for discovering what `agr run`/`agr bench` accept as a short name instead of a full path.
+
+```bash
+agr list-tests
+agr list-tests tasks/
+```
+
+### Options
+
+| Flag | Default | Description |
+|---|---|---|
+| `[dir]` | `.` | Directory to scan recursively for test case YAML files. |
+
+### Examples
+
+```bash
+# List test cases under the current directory
+agr list-tests
+
+# List test cases under a specific directory
+agr list-tests tasks/
 ```
 
 ## `agr run`
@@ -68,8 +105,14 @@ agr init my-project --force
 Run a single test case with one agent config. Useful for debugging a specific case or iterating on prompts.
 
 ```bash
-agr run test-cases/fix-greeting/agr.yaml --config agent.yaml
+agr run hello-world --config agent.yaml
 ```
+
+`<testCase>` accepts any of:
+
+- a path to an `agr.yaml` file (with or without the `.yaml`/`.yml` extension)
+- a path to a directory containing an `agr.yaml`
+- a test case's `name:` field, or its directory's basename, looked up by recursively searching the current directory (as `agr list-tests` would find it)
 
 `agr run` renders a live terminal UI (built with Ink) while the agent works, then a summary panel and diff once it finishes:
 
@@ -83,7 +126,7 @@ Exit codes: `0` once the run completes by default, even when the agent scores `F
 
 | Flag | Default | Description |
 |---|---|---|
-| `<testCase>` | Required | Path to an `agr.yaml` file. |
+| `<testCase>` | Required | Path to an `agr.yaml` file, a directory containing one, or a test case name/directory basename (see above). |
 | `--config <path>` | Built-in default | Path to an agent config YAML. If omitted, uses `gpt-4o-mini` with `max_steps: 20`. |
 | `--adapter <name>` | `ai-sdk` | Agent adapter: `ai-sdk` (default AI SDK loop) or `acp` (external ACP agent). See [ACP Agent Adapter](/advanced/acp-agent). |
 | `--verbose` | `false` | Show full per-step detail (tool name + content preview) in the live step list, instead of the compact step/cost counter. |

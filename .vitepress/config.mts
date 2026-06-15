@@ -52,6 +52,7 @@ const referenceSidebar: DefaultTheme.SidebarItem[] = [
         collapsed: false,
         items: [
           { text: 'agr init', link: '/reference/cli#agr-init' },
+          { text: 'agr list-tests', link: '/reference/cli#agr-list-tests' },
           { text: 'agr run', link: '/reference/cli#agr-run' },
           { text: 'agr trace', link: '/reference/cli#agr-trace' },
           { text: 'agr list', link: '/reference/cli#agr-list' },
