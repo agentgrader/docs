@@ -166,9 +166,38 @@ wraps CLI tools operating on "the current project" will see the host
 filesystem wherever it was spawned, not the sandboxed task's fixture files
 at `/app`. Such a server is useful for tasks about its own host-side
 checkout (e.g. a toolkit's own source), but is not yet a sandbox-aware
-substitute for `toolkits:` on benchmark tasks - that would require
-agentgrader to spawn `mcp_servers` stdio commands inside the sandbox
-container (e.g. via `docker exec -i`, bridging stdio).
+substitute for `toolkits:` on benchmark tasks for ACP - that would require
+ACP agent subprocesses themselves to spawn `mcpServers` stdio commands
+inside the sandbox container.
+
+### `sandboxed: true` runs a stdio MCP server inside the sandbox (AI SDK adapter)
+
+For the AI SDK adapter (agent-openrouter), a `command`-based `mcp_servers:`
+entry can opt into running inside the Docker sandbox instead of on the host
+by setting `sandboxed: true`:
+
+```yaml
+mcp_servers:
+  jetbrains-tools:
+    command: bun
+    args: [/app/toolkits/jetbrains-tools/mcp-server.ts]
+    sandboxed: true
+```
+
+When set, agent-openrouter spawns `command` via
+`SandboxHandle.spawnStdio()` - for `@agentgrader/sandbox-docker`, this runs
+`docker exec -i <container> sh -c <command>` as a host child process talking
+to the container's stdio, rather than dockerode's hijacked exec stream
+(which never resolves under Bun). Messages are framed as newline-delimited
+JSON, matching the MCP stdio transport's wire format. The server's `command`
+now sees the task's sandboxed `/app` fixture files - the same filesystem
+`toolkits:` and `sandbox.exec()` operate on - rather than the host.
+
+`sandboxed: true` requires a sandbox provider that implements `spawnStdio`
+(currently only `@agentgrader/sandbox-docker`); on other providers, the
+connection attempt fails and is logged the same as any other MCP connection
+error. This flag is not yet forwarded to ACP agents - it is only read by
+agent-openrouter's own MCP connection loop.
 
 ### Scaffolding a new toolkit tool
 
