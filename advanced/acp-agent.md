@@ -136,6 +136,25 @@ and `terminal/create({ command: "find-usages", args: [...] })` both resolve
 inside the same sandbox container where `toolkits:` placed those files -
 there is no separate host-side copy for the agent to miss.
 
+### `mcp_servers` are now forwarded to ACP agents too
+
+`config.mcp_servers` - the same map agent-openrouter connects to and merges
+into its tool set - is now passed through to `connection.newSession()` as
+`mcpServers`, converted to ACP's `McpServer` shape (stdio servers keep
+`command`/`args`/`env`; http/sse servers become `{ type: "http" | "sse", url,
+headers }`, with `env`/`headers` maps converted to ACP's `{ name, value }`
+list form). Previously `newSession` always passed `mcpServers: []`, so any
+`mcp_servers:` entries in an agent config were silently dropped for ACP runs
+even though the identical config worked for the AI SDK adapter.
+
+Whether the ACP agent actually connects to and uses a forwarded MCP server
+depends on that agent's own ACP implementation (e.g. whether it implements
+the `mcpServers` field of `session/new` at all) - agentgrader's role here is
+just to stop dropping the config. This is a separate mechanism from
+`toolkits:` above: `toolkits:` ships CLI scripts + `SKILL.md` docs into the
+sandbox and describes them via the system-prompt addendum, while
+`mcp_servers:` is for agents that speak MCP directly.
+
 ### Scaffolding a new toolkit tool
 
 Use `agr toolkit-add <name>` to generate the `bin/<name>` script and
