@@ -10,14 +10,14 @@ Use `--fail-on-failure` on `agr run` and `agr bench` to exit with code 1 when a 
 
 ```bash
 agr run tasks/hello-world/agr.yaml --config agent.yaml --fail-on-failure
-agr bench --suite test-cases/ --config agent.yaml --fail-on-failure
+agr bench --suite tasks/ --config agent.yaml --fail-on-failure
 ```
 
 On `agr bench`, you can also set a minimum solve rate:
 
 ```bash
-agr bench --suite test-cases/ --config agent.yaml --min-solve-rate 0.8
-agr bench --suite test-cases/ --configs a.yaml,b.yaml --min-solve-rate 0.9 --min-solve-rate-scope per-config
+agr bench --suite tasks/ --config agent.yaml --min-solve-rate 0.8
+agr bench --suite tasks/ --configs a.yaml,b.yaml --min-solve-rate 0.9 --min-solve-rate-scope per-config
 ```
 
 Combine both flags when you want any individual failure or an overall solve-rate drop to fail the job.
@@ -27,7 +27,7 @@ Combine both flags when you want any individual failure or an overall solve-rate
 Generate machine-readable or human-readable reports and upload them as workflow artifacts:
 
 ```bash
-agr bench --suite test-cases/ --config agent.yaml \
+agr bench --suite tasks/ --config agent.yaml \
   --fail-on-failure \
   --report json \
   --output reports/bench.json
@@ -42,7 +42,7 @@ GitHub Actions example with artifact upload:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
-          agr bench --suite test-cases/ --config agent.yaml \
+          agr bench --suite tasks/ --config agent.yaml \
             --fail-on-failure --min-solve-rate 0.8 \
             --report json --output reports/bench.json
 
@@ -59,7 +59,7 @@ GitHub Actions example with artifact upload:
 Save a baseline snapshot on `main`, then compare PR bench results against it:
 
 ```bash
-agr bench --suite test-cases/ --config agent.yaml --save-baseline baselines/main.json
+agr bench --suite tasks/ --config agent.yaml --save-baseline baselines/main.json
 agr compare-baseline --current baselines/main.json --format md --output comment.md
 ```
 
@@ -73,12 +73,12 @@ Before running agents, verify test case definitions are complete:
 
 ```bash [npm]
 npm install -g agentgrader
-agr validate test-cases/my-case/agr.yaml --strict
+agr validate my-case --strict
 ```
 
 ```bash [bun]
 bun add -g agentgrader
-agr validate test-cases/my-case/agr.yaml --strict
+agr validate my-case --strict
 ```
 
 :::
@@ -111,7 +111,7 @@ jobs:
 
       - name: Validate test cases
         run: |
-          for f in test-cases/*/agr.yaml; do
+          for f in tasks/*/agr.yaml; do
             agr validate "$f" --strict
           done
 
@@ -119,7 +119,7 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
-          agr bench --suite test-cases/ --config agent.yaml --concurrency 2 --fail-on-failure --min-solve-rate 0.8
+          agr bench --suite tasks/ --config agent.yaml --concurrency 2 --fail-on-failure --min-solve-rate 0.8
 ```
 
 ## Things to keep in mind

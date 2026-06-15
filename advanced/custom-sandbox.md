@@ -5,7 +5,7 @@ The default CLI sandbox is local Docker (`--sandbox docker`). Agentgrader also s
 ```bash
 export E2B_API_KEY=...
 agr run tasks/hello-world/agr.yaml --config agent.yaml --sandbox e2b
-agr bench --suite test-cases/ --config agent.yaml --sandbox e2b
+agr bench --suite tasks/ --config agent.yaml --sandbox e2b
 ```
 
 If you prefer another cloud provider (Daytona, Firecracker, etc.), implement the `SandboxProvider` interface below and pass your provider into the programmatic API, or wire it into a custom CLI wrapper.

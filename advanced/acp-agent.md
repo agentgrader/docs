@@ -94,7 +94,7 @@ Compare the built-in LLM loop against an external ACP agent in one bench run:
 
 ```bash
 agr bench \
-  --suite test-cases/ \
+  --suite tasks/ \
   --configs agent.yaml,examples/configs/agent-acp-claude.yaml \
   --adapters ai-sdk,acp
 ```

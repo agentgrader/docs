@@ -29,7 +29,7 @@ import { randomUUID } from "node:crypto";
 const result = await runSingle({
   testCase: {
     name: "fix-greeting",
-    fixture: "./test-cases/fix-greeting/fixture",
+    fixture: "./tasks/fix-greeting/fixture",
     prompt: "Fix the greet() function so all tests pass.",
     success: [{ run: "npm test", expect: { exit_code: 0 } }],
     timeout_seconds: 300,
