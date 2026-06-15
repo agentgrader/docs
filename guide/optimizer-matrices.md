@@ -29,7 +29,7 @@ dimensions:
 ```
 
 ```bash
-agr bench --matrix matrix.yaml --suite ./test-cases
+agr bench --matrix matrix.yaml --suite tasks/
 ```
 
 This produces four configs (`2 models × 2 temperatures`), runs every test case against each, tags runs with one `matrixId`, and prints a Pareto-marked summary table.
@@ -44,7 +44,7 @@ my-benchmark/
   agents-configs/
     claude-debugger.yaml
     gpt-fast.yaml
-  test-cases/
+  tasks/
     ...
 ```
 
@@ -52,8 +52,8 @@ Load them three ways:
 
 ```bash
 agr bench --manifest bench.yaml
-agr bench --suite test-cases/ --configs-dir agents-configs/
-agr bench --suite test-cases/ --configs agents-configs/a.yaml,agents-configs/b.yaml
+agr bench --suite tasks/ --configs-dir agents-configs/
+agr bench --suite tasks/ --configs agents-configs/a.yaml,agents-configs/b.yaml
 ```
 
 ## Toolkit A/B with `--matrix`
@@ -77,7 +77,7 @@ If `base.system_prompt` lists tools that only exist in the toolkit arm, add a fa
 
 ```bash
 agr bench \
-  --suite test-cases/ \
+  --suite tasks/ \
   --configs agent.yaml,agents-configs/agent-acp-claude.yaml \
   --adapters ai-sdk,acp
 ```

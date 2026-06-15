@@ -31,7 +31,7 @@ Run IDs appear in bench/run output and in `agr list`.
 Save a snapshot after a bench on `main`:
 
 ```bash
-agr bench --suite test-cases/ --config agent.yaml --save-baseline baselines/main.json
+agr bench --suite tasks/ --config agent.yaml --save-baseline baselines/main.json
 ```
 
 Compare a PR bench against it:

@@ -7,8 +7,8 @@ Patterns for running Agentgrader in pull-request and nightly pipelines.
 Agent runs are slow and cost money. Gate incomplete definitions first:
 
 ```bash
-agr validate test-cases/fix-greeting/agr.yaml --strict
-agr validate test-cases/fix-greeting/agr.yaml --audit-toolkits
+agr validate tasks/fix-greeting/agr.yaml --strict
+agr validate tasks/fix-greeting/agr.yaml --audit-toolkits
 ```
 
 `--strict` fails when SWE-bench fields (`test_command`, `fail_to_pass`, `pass_to_pass`) are missing. `--audit-toolkits` runs the security audit on referenced toolkit directories.
@@ -19,7 +19,7 @@ By default `agr run` and `agr bench` exit `0` even when the agent fails scoring.
 
 ```bash
 agr run tasks/foo/agr.yaml --config agent.yaml --fail-on-failure
-agr bench --suite test-cases/ --config agent.yaml \
+agr bench --suite tasks/ --config agent.yaml \
   --fail-on-failure \
   --min-solve-rate 0.8 \
   --strict-toolkits
@@ -35,7 +35,7 @@ agr bench --suite test-cases/ --config agent.yaml \
 ## Report artifacts
 
 ```bash
-agr bench --suite test-cases/ --config agent.yaml \
+agr bench --suite tasks/ --config agent.yaml \
   --fail-on-failure \
   --report json \
   --output reports/bench.json
@@ -48,7 +48,7 @@ Formats: `json`, `jsonl`, `html`, `md`. Add `--report-include-traces` for full s
 On `main`:
 
 ```bash
-agr bench --suite test-cases/ --config agent.yaml --save-baseline baselines/main.json
+agr bench --suite tasks/ --config agent.yaml --save-baseline baselines/main.json
 ```
 
 On a PR branch (after bench):

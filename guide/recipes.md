@@ -10,7 +10,7 @@ Copy-paste patterns for common Agentgrader workflows.
 4. Validate:
 
 ```bash
-agr validate test-cases/my-case/agr.yaml --strict
+agr validate my-case --strict
 ```
 
 Example fields:
@@ -45,7 +45,7 @@ dimensions:
 ```
 
 ```bash
-agr bench --matrix matrix.yaml --suite test-cases/ --fail-on-failure
+agr bench --matrix matrix.yaml --suite tasks/ --fail-on-failure
 agr export runs --matrix-id <id-from-output> --format jsonl --output sweep.jsonl
 ```
 
@@ -56,7 +56,7 @@ See [Optimizer Matrix YAML](/reference/matrix-yaml) and [Optimizer matrices](/gu
 On `main` (or nightly):
 
 ```bash
-agr bench --suite test-cases/ --config agent.yaml \
+agr bench --suite tasks/ --config agent.yaml \
   --save-baseline baselines/main.json \
   --report json --output reports/main.json
 ```
@@ -64,7 +64,7 @@ agr bench --suite test-cases/ --config agent.yaml \
 On each PR:
 
 ```bash
-agr bench --suite test-cases/ --config agent.yaml --fail-on-failure
+agr bench --suite tasks/ --config agent.yaml --fail-on-failure
 agr compare-baseline --current baselines/main.json \
   --format md \
   --output comment.md \
@@ -88,7 +88,7 @@ toolkits:
 ```
 
 ```bash
-agr run test-cases/my-case/agr.yaml --config agent-acp.yaml --adapter acp
+agr run my-case --config agent-acp.yaml --adapter acp
 ```
 
 ACP rewrites sandboxed stdio servers to `agr-mcp-proxy` when the sandbox exposes `sandboxBridgeId`. See [ACP Agent Adapter](/advanced/acp-agent#sandboxed-true-for-acp-agents-via-agr-mcp-proxy).
@@ -112,7 +112,7 @@ Bench with gate:
 
 ```bash
 export ANTHROPIC_API_KEY=...
-agr bench --suite test-cases/ --config agent.yaml \
+agr bench --suite tasks/ --config agent.yaml \
   --llm-judge \
   --judge-gate \
   --judge-min-score 0.75 \
@@ -136,7 +136,7 @@ dimensions:
 ```
 
 ```bash
-agr bench --matrix matrix.yaml --suite test-cases/
+agr bench --matrix matrix.yaml --suite tasks/
 ```
 
 Compare **TOOL USAGE BY CONFIG** and `agr trace --tools` across matrix arms. See [Toolkits guide](/guide/toolkits).
@@ -145,16 +145,16 @@ Compare **TOOL USAGE BY CONFIG** and `agr trace --tools` across matrix arms. See
 
 ```bash
 export GITHUB_TOKEN=...
-agr import-pr owner/repo 123 --clone-fixture --out test-cases/repo-123
+agr import-pr owner/repo 123 --clone-fixture --out tasks/repo-123
 # fill in fail_to_pass / pass_to_pass from TAP output
-agr validate test-cases/repo-123/agr.yaml --strict
+agr validate repo-123 --strict
 ```
 
 ## E2B cloud sandbox
 
 ```bash
 export E2B_API_KEY=...
-agr bench --suite test-cases/ --config agent.yaml --sandbox e2b --concurrency 2
+agr bench --suite tasks/ --config agent.yaml --sandbox e2b --concurrency 2
 ```
 
 See [Choosing a sandbox](/guide/sandboxes).

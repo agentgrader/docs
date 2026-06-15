@@ -7,8 +7,8 @@ Every run provisions an isolated environment, copies the fixture to `/app`, and 
 Local Docker is the default provider. No extra flag required:
 
 ```bash
-agr run tasks/hello-world/agr.yaml --config agent.yaml
-agr bench --suite test-cases/ --config agent.yaml
+agr run hello-world --config agent.yaml
+agr bench --suite tasks/ --config agent.yaml
 ```
 
 Requirements:
@@ -25,9 +25,9 @@ Use the built-in E2B provider when you do not want local Docker:
 
 ```bash
 export E2B_API_KEY=...
-agr run tasks/hello-world/agr.yaml --config agent.yaml --sandbox e2b
-agr bench --suite test-cases/ --config agent.yaml --sandbox e2b
-agr validate test-cases/my-case/agr.yaml --sandbox e2b
+agr run hello-world --config agent.yaml --sandbox e2b
+agr bench --suite tasks/ --config agent.yaml --sandbox e2b
+agr validate my-case --sandbox e2b
 ```
 
 E2B supports the same fixture setup, toolkit injection, and `spawnStdio` for sandboxed MCP servers as Docker.

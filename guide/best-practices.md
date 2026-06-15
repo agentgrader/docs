@@ -26,7 +26,7 @@ Set your API key, then run the bundled hello-world task:
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-agr run tasks/hello-world/agr.yaml --config agent.yaml --verbose
+agr run hello-world --config agent.yaml --verbose
 ```
 
 Once that passes, replace the fixture and prompt with your own task. Keep the same folder layout (`tasks/<name>/agr.yaml` + `fixture/`).
@@ -42,7 +42,7 @@ my-benchmark/
   agents-configs/            # one YAML per architecture you want to compare
     claude-sonnet.yaml
     gpt-mini.yaml
-  test-cases/
+  tasks/
     fix-greeting/
       agr.yaml
       fixture/
@@ -57,8 +57,8 @@ Version-control test cases and agent configs. Ignore `.agr/` and `.env` in git.
 Agent runs are slow and cost money. Catch YAML mistakes first:
 
 ```bash
-agr validate test-cases/fix-greeting/agr.yaml
-agr validate test-cases/fix-greeting/agr.yaml --strict
+agr validate fix-greeting
+agr validate fix-greeting --strict
 ```
 
 `--strict` fails when SWE-bench fields (`test_command`, `fail_to_pass`, `pass_to_pass`) are missing. Use it in CI before any `agr bench` step. See [CI workflows](/guide/ci-workflows).
@@ -93,9 +93,9 @@ Tune limits per task difficulty. Tight limits catch runaway tool loops early. Mo
 
 | Goal | Command |
 |---|---|
-| One task, one agent | `agr run tasks/foo/agr.yaml --config agent.yaml` |
-| Full suite × several agents | `agr bench --suite test-cases/ --configs-dir agents-configs/` |
-| Hyperparameter sweep (model × temperature) | `agr bench --matrix matrix.yaml --suite test-cases/` |
+| One task, one agent | `agr run <name> --config agent.yaml` |
+| Full suite × several agents | `agr bench --suite tasks/ --configs-dir agents-configs/` |
+| Hyperparameter sweep (model × temperature) | `agr bench --matrix matrix.yaml --suite tasks/` |
 | Reproducible team config in one file | `agr bench --manifest bench.yaml` |
 
 Use [Bench Manifest YAML](/reference/bench-manifest-yaml) for suite + agent globs in one file. Use [Optimizer Matrix YAML](/reference/matrix-yaml) for cartesian products. Guide: [Optimizer matrices](/guide/optimizer-matrices).
@@ -106,7 +106,7 @@ When benchmarking an external ACP agent (Claude Code, Cursor Agent) against the 
 
 ```bash
 agr bench \
-  --suite test-cases/ \
+  --suite tasks/ \
   --configs agent.yaml,agents-configs/agent-acp-claude.yaml \
   --adapters ai-sdk,acp
 ```

@@ -30,8 +30,8 @@ Static quality tracks diff size, files touched, TODO markers, and lint violation
 ### Enable LLM judge on the CLI
 
 ```bash
-agr bench --suite test-cases/ --config agent.yaml --llm-judge --judge-gate --judge-min-score 0.75
-agr run test-cases/my-case/agr.yaml --config agent.yaml --llm-judge --llm-judge-provider openai
+agr bench --suite tasks/ --config agent.yaml --llm-judge --judge-gate --judge-min-score 0.75
+agr run my-case --config agent.yaml --llm-judge --llm-judge-provider openai
 ```
 
 ### Inspect metrics
