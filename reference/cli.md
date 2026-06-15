@@ -165,9 +165,13 @@ agr run test-cases/fix-greeting/agr.yaml --config agent.yaml --llm-judge --judge
 
 ## `agr bench`
 
-Run every test case in a suite against one or more agent configs (or an optimizer matrix). Shows a live terminal dashboard and runs evaluations in parallel.
+Run test cases against one or more agent configs (or an optimizer matrix). Shows a live terminal dashboard and runs evaluations in parallel.
+
+`<testCases>` accepts the same forms as [`agr run`](#agr-run): a path to an `agr.yaml` file, a directory containing one, or a test case name/directory basename resolved by searching the current directory. When positional names are given without `--suite`, each is resolved individually. When `--suite` is given alongside positional names, the suite is loaded and then filtered to the named subset.
 
 ```bash
+agr bench hello-world --matrix matrix.yaml
+agr bench task-a task-b --configs agent.yaml
 agr bench --suite test-cases/ --configs agent.yaml,agent-alt.yaml --concurrency 2
 agr bench --suite test-cases/ --configs-dir agents-configs/
 agr bench --manifest bench.yaml
@@ -177,8 +181,9 @@ agr bench --manifest bench.yaml
 
 | Flag | Default | Description |
 |---|---|---|
+| `[...testCases]` | (all in suite) | One or more test case names, directories, or `agr.yaml` paths to run. When given without `--suite`, each is resolved via name search (see above). |
 | `--manifest <path>` | (none) | Bench manifest YAML with `suite` and `agents` (paths/glob). Replaces `--suite` + `--configs` on the CLI. |
-| `--suite <path>` | Required without `--manifest` | Directory containing test case folders (each with an `agr.yaml`). |
+| `--suite <path>` | Required without positional args or `--manifest` | Directory containing test case folders (each with an `agr.yaml`). |
 | `--configs <paths>` | One agent source required | Comma-separated paths to agent config YAML files. |
 | `--config <path>` | (none) | Alias for `--configs` when you have a single agent config file. |
 | `--configs-dir <dir>` | (none) | Load every `.yaml`/`.yml` file in the directory as an agent config. |
@@ -207,6 +212,15 @@ Exit codes: `0` by default after a completed bench. Use `--fail-on-failure`, `--
 ### Examples
 
 ```bash
+# Run a single named test case with a matrix (no --suite needed)
+agr bench hello-world --matrix matrix.yaml
+
+# Run two named test cases against a specific agent config
+agr bench task-a task-b --configs agent.yaml
+
+# Filter a suite to one test case
+agr bench hello-world --suite test-cases/ --configs agent.yaml
+
 # Bench manifest (suite + agent glob in one file)
 agr bench --manifest bench.yaml
 
