@@ -113,6 +113,17 @@ it to install dependencies the toolkit's scripts (or the agent's own ad-hoc
 commands) need, e.g. `pip install pytest` on a bare `python:3.11` image. See
 [Best Practices](/guide/best-practices#toolkit-setup-hooks-setup-sh).
 
+A ready-made example combining both fields lives at
+`examples/configs/agent-acp-claude-with-toolkit.yaml`: it adds `toolkits:
+[../toolkits/code-search]` to the same `acp_command: claude` setup as
+`agent-acp-claude.yaml` above.
+
+```bash
+agr run tasks/hello-world/agr.yaml \
+  --config examples/configs/agent-acp-claude-with-toolkit.yaml \
+  --adapter acp
+```
+
 This means an ACP agent (Claude Code, Cursor Agent, ...) can invoke a custom
 toolkit command - e.g. a JetBrains-style `find-usages`/`view-structure`
 script - via `terminal/create`, exactly as it would invoke `pytest` or
