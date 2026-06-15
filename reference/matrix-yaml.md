@@ -21,7 +21,7 @@ dimensions:
 ```
 
 ```bash
-agr bench --matrix matrix.yaml --suite ./test-cases
+agr bench --matrix matrix.yaml --suite tasks/
 ```
 
 Produces four expanded configs. Every run shares one `matrixId`.
