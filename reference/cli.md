@@ -415,6 +415,7 @@ agr list
 | `--plain` | `false` | Print a plain text list instead of the interactive UI. Used automatically when stdout is not a TTY. |
 | `--since <duration\|date>` | (none) | Only show runs after this point. Accepts relative durations (`1h`, `24h`, `7d`) or ISO timestamps. Applied before `--limit`. |
 | `--test-case <name>` | (none) | Only show runs for this specific test case (substring match on `testCaseId`). Applied before `--limit`. |
+| `--config <name>` | (none) | Only show runs for this specific agent config (substring match on `agentConfigId`). Applied before `--limit`. |
 
 ### Examples
 
@@ -430,6 +431,9 @@ agr list --plain --since 24h
 
 # Show all runs for a specific test case
 agr list --plain --test-case hello-world
+
+# Show all runs for a specific agent config
+agr list --plain --config agent-fast
 ```
 
 In the interactive UI, use the arrow keys (or `j`/`k`) to move through the run list, `Enter` to open a run's detail view (agent diff plus a trace preview), `c` to start a diff comparison between two runs, `b`/`Esc` to go back, and `q` to quit.
@@ -648,5 +652,6 @@ Output includes:
 | `--json` | off | Emit JSON to stdout instead of formatted text. |
 | `--since <duration\|date>` | (none) | Restrict stats to runs after this point. Accepts relative durations (`1h`, `24h`, `7d`) or ISO timestamps. |
 | `--test-case <name>` | (none) | Restrict stats to runs for this specific test case (substring match). Shows solve rate, avg cost, and avg duration for that task. |
+| `--config <name>` | (none) | Restrict stats to runs for this specific agent config (substring match). Useful for comparing performance between two configs. |
 
-The `--json` output contains: `exists`, `dbPath`, `since`, `testCase`, `totalRuns`, `passedRuns`, `failedRuns`, `erroredRuns`, `solveRate`, `uniqueTestCases`, `uniqueConfigs`, `matrixRuns`, `totalCostUsd`, `avgCostUsd`, `avgDurationMs`, `totalTokensIn`, `totalTokensOut`, `lastRunAt`, `lastRunTestCaseId`, `lastRunAgentConfigId`.
+The `--json` output contains: `exists`, `dbPath`, `since`, `testCase`, `config`, `totalRuns`, `passedRuns`, `failedRuns`, `erroredRuns`, `solveRate`, `uniqueTestCases`, `uniqueConfigs`, `matrixRuns`, `totalCostUsd`, `avgCostUsd`, `avgDurationMs`, `totalTokensIn`, `totalTokensOut`, `lastRunAt`, `lastRunTestCaseId`, `lastRunAgentConfigId`.

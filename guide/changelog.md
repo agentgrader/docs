@@ -95,6 +95,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | trace --last --test-case | `agr trace --last --test-case <name>` traces the most recent run for a specific test case; pairs with compare --last-two --test-case for per-task debug workflows |
 | status --test-case | `agr status --test-case <name>` shows solve rate, avg cost, avg duration, and run count for one test case; `--json` adds `solveRate`, `avgCostUsd`, `avgDurationMs` fields |
 | list --test-case | `agr list --plain --test-case <name>` filters the run list to a specific test case; consistent with status/trace/compare `--test-case` pattern |
+| list/status --config | `agr list --config <name>` and `agr status --config <name>` filter by agent config; useful for comparing performance between two configs via `agr status --config agent-a` vs `--config agent-b` |
 
 **Earlier additions** (1.5.x):
 
