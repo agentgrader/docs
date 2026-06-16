@@ -32,7 +32,7 @@ The output shows every test case (with tags if any) and config that would be inc
 After a bench completes, `agr bench` prints a plain-text summary line:
 
 ```
-Result: 4/6 PASS (67%)  cost: $0.0240
+Result: 4/6 PASS (67%)  cost: $0.0240  avg: $0.0040/run  avg: 18.0s/run  elapsed: 36.2s
 ```
 
 This persists in CI logs even when the Ink dashboard is not captured.
