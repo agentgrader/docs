@@ -27,7 +27,15 @@ Before a large bench (many tasks or a matrix sweep), use `--dry-run` to confirm 
 agr bench --suite tasks/ --matrix matrix.yaml --dry-run
 ```
 
-The output shows every test case and config that would be included, with total job count.
+The output shows every test case (with tags if any) and config that would be included, with total job count.
+
+After a bench completes, `agr bench` prints a plain-text summary line:
+
+```
+Result: 4/6 PASS (67%)  cost: $0.0240
+```
+
+This persists in CI logs even when the Ink dashboard is not captured.
 
 ## Exit codes for CI gates
 
