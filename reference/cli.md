@@ -434,8 +434,9 @@ Run IDs come from bench/run output or the `runs` table in `.agr/db.sqlite`. Both
 
 | Flag | Default | Description |
 |---|---|---|
-| `<runIdA>` | Required | First run to compare (shown as column A). |
-| `<runIdB>` | Required | Second run to compare (shown as column B). |
+| `[runIdA]` | Required unless `--last-two` | First run to compare (shown as column A). |
+| `[runIdB]` | Required unless `--last-two` | Second run to compare (shown as column B). |
+| `--last-two` | `false` | Compare the two most recent runs without specifying IDs. |
 | `--full` | `false` | Print full step content without the 200-character truncation used by `agr trace`. |
 | `--only-diff` | `false` | Show only divergent steps, plus one step of context before and after each divergence. |
 
@@ -450,6 +451,9 @@ agr compare <runIdA> <runIdB> --only-diff
 
 # Full content for divergent steps
 agr compare <runIdA> <runIdB> --only-diff --full
+
+# Compare the two most recent runs (no IDs needed)
+agr compare --last-two --only-diff
 ```
 
 ## `agr compare-baseline`
@@ -520,7 +524,7 @@ agr export traces --run-id <runId> --format otlp --output trace.json
 | Subcommand | Description |
 |---|---|
 | `runs` | Export run rows (optionally filtered by `--matrix-id`). |
-| `traces` | Export step traces for a single run (`--run-id` required). |
+| `traces` | Export step traces for a single run (`--run-id` or `--last` required). |
 
 ### Options
 
@@ -529,7 +533,8 @@ agr export traces --run-id <runId> --format otlp --output trace.json
 | `--format <format>` | `json` | Export format: `json`, `jsonl`, or `otlp` (traces only). |
 | `--output <path>` | auto-named | Output file path. |
 | `--db <path>` | `.agr/db.sqlite` | SQLite database to read. |
-| `--run-id <id>` | (none) | Run UUID (required for `export traces`). |
+| `--run-id <id>` | (none) | Run UUID for `export traces`. Use `--last` instead to avoid the lookup. |
+| `--last` | `false` | Export traces for the most recent run (alternative to `--run-id` for `export traces`). |
 | `--matrix-id <id>` | (none) | Filter `export runs` to a bench matrix id. |
 | `--limit <n>` | (none) | Maximum number of runs to export. |
 
