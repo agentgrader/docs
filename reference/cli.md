@@ -89,6 +89,7 @@ agr list-tests tasks/
 | Flag | Default | Description |
 |---|---|---|
 | `[dir]` | `.` | Directory to scan recursively for test case YAML files. |
+| `--json` | `false` | Print results as a JSON array (`name`, `path`, `relativePath`, optional `description`) instead of a human-readable table. Useful for scripting or CI step that enumerates test cases. |
 
 ### Examples
 
@@ -98,6 +99,9 @@ agr list-tests
 
 # List test cases under a specific directory
 agr list-tests tasks/
+
+# Machine-readable JSON (for scripting)
+agr list-tests --json | jq '.[].name'
 ```
 
 ## `agr run`
@@ -263,14 +267,14 @@ After the dashboard finishes, `agr bench` also prints a **TOOL USAGE BY CONFIG**
 
 ## `agr validate`
 
-Validate a test case the way SWE-bench validates a candidate instance: static checks, then (when `test_command` is set) pre-patch and post-patch execution inside Docker.
+Validate one or more test cases the way SWE-bench validates a candidate instance: static checks, then (when `test_command` is set) pre-patch and post-patch execution inside Docker.
 
 ```bash
 agr validate fix-greeting
-agr validate hello-world
+agr validate task-a task-b task-c --strict
 ```
 
-`<testCase>` accepts the same forms as [`agr run`](#agr-run): a path to an `agr.yaml` file, a directory containing one, or a test case name/directory basename resolved by searching the current directory.
+Each `<testCase>` accepts the same forms as [`agr run`](#agr-run): a path to an `agr.yaml` file, a directory containing one, or a test case name/directory basename resolved by searching the current directory.
 
 When `test_command` is missing, execution checks are skipped (shown with ⚠️). Use `--strict` in CI to require `test_command`, `fail_to_pass`, and `pass_to_pass`.
 
@@ -278,7 +282,7 @@ When `test_command` is missing, execution checks are skipped (shown with ⚠️)
 
 | Flag | Default | Description |
 |---|---|---|
-| `<testCase>` | Required | Path to an `agr.yaml` file, a directory containing one, or a test case name/directory basename. |
+| `[...testCases]` | Required (at least one) | One or more paths, directories, or test case names. When multiple are given, each is validated in turn; exits 1 if any fail. |
 | `--strict` | `false` | Exit with code 1 if `test_command`, `fail_to_pass`, or `pass_to_pass` are missing. |
 | `--sandbox <provider>` | `docker` | Sandbox provider used for execution checks: `docker` or `e2b`. |
 | `--audit-toolkits` | `false` | Run the toolkit security audit on every `toolkits:` path referenced by the test case. |
@@ -291,6 +295,9 @@ agr validate my-case
 
 # CI gate: reject incomplete definitions
 agr validate my-case --strict
+
+# Validate every test case in a directory at once
+agr validate task-a task-b task-c --strict
 ```
 
 ## `agr import-pr`
