@@ -33,6 +33,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | Bench startup log | `agr bench` now prints `Starting N run(s), concurrency: M` before the live dashboard, making total jobs and concurrency visible without `--dry-run` |
 | Bench elapsed time | `agr bench` result summary now shows `elapsed: Xs` wall-clock time |
 | Export record count | `agr export runs` and `agr export traces` now print the record count in the output line, e.g. `Export written to export-runs.json (42 records)` |
+| export traces --last | `agr export traces --last` exports the most recent run without specifying a run ID (mirrors `agr trace --last`) |
 
 **Earlier additions** (1.5.x):
 
