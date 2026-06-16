@@ -2,7 +2,7 @@
 
 Patterns for running Agentgrader in pull-request and nightly pipelines.
 
-## Validate before you benchmark
+## Validate before you compare
 
 Agent runs are slow and cost money. Gate incomplete definitions first:
 

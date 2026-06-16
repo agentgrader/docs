@@ -60,7 +60,7 @@ agr init --ci
 agr init --blank --ci
 ```
 
-This writes `.github/workflows/agr.yml` — a minimal GitHub Actions workflow that installs `agentgrader` and runs `agr bench --suite tasks/ --fail-on-failure` on every push to `main` and on pull requests. Add `ANTHROPIC_API_KEY` as a repository secret to enable it. The CI workflow is a starting point; customize the `run:` step to add `--min-solve-rate`, reports, or baseline comparisons.
+This writes `.github/workflows/agr.yml`, a minimal GitHub Actions workflow that installs `agentgrader` and runs `agr bench --suite tasks/ --fail-on-failure` on every push to `main` and on pull requests. Add `ANTHROPIC_API_KEY` as a repository secret to enable it. The CI workflow is a starting point; customize the `run:` step to add `--min-solve-rate`, reports, or baseline comparisons.
 
 ### Options
 
@@ -69,8 +69,8 @@ This writes `.github/workflows/agr.yml` — a minimal GitHub Actions workflow th
 | `[dir]` | `.` | Directory to scaffold into. Created if it does not exist. |
 | `--force` | `false` | Overwrite `agent.yaml` if it already exists. Without it, `agr init` refuses to run on a directory that already has an `agent.yaml`, similar to `git init` on an existing repo. |
 | `--blank` | `false` | Only write `agent.yaml` and an empty `tasks/` directory, without the `hello-world` sample test case. |
-| `--ci` | `false` | Also write `.github/workflows/agr.yml` — a GitHub Actions CI workflow that runs `agr bench --suite tasks/ --fail-on-failure` on push and pull_request. Skipped if the file already exists. |
-| `--example <lang>` | `js` | Sample test case language for the scaffolded hello-world. `js` (default) uses Node's built-in test runner. `python` (or `py`) uses `pytest -x` — scaffolds `math.py` and `test_math.py` instead. Requires `pytest` in the sandbox Docker image. |
+| `--ci` | `false` | Also write `.github/workflows/agr.yml`, a GitHub Actions CI workflow that runs `agr bench --suite tasks/ --fail-on-failure` on push and pull_request. Skipped if the file already exists. |
+| `--example <lang>` | `js` | Sample test case language for the scaffolded hello-world. `js` (default) uses Node's built-in test runner. `python` (or `py`) uses `pytest -x` and scaffolds `math.py` and `test_math.py` instead. Requires `pytest` in the sandbox Docker image. |
 
 ### Examples
 
@@ -251,7 +251,7 @@ agr run hello-world --repeat 5 --json | jq .solveRate
 
 ## `agr bench`
 
-Run test cases against one or more agent configs (or an optimizer matrix). Shows a live terminal dashboard and runs evaluations in parallel.
+Run test cases against one or more agent configs (or an optimizer matrix). Compare solve rates, cost, and quality across configs. Shows a live terminal dashboard and runs evaluations in parallel.
 
 `<testCases>` accepts the same forms as [`agr run`](#agr-run): a path to an `agr.yaml` file, a directory containing one, or a test case name/directory basename resolved by searching the current directory. When positional names are given without `--suite`, each is resolved individually. When `--suite` is given alongside positional names, the suite is loaded and then filtered to the named subset.
 
@@ -276,7 +276,7 @@ agr bench --manifest bench.yaml
 | `--matrix <path>` | (none) | Optimizer matrix YAML. Expands into the cartesian product of agent configs, tags runs with a shared `matrixId`, and prints a Pareto summary. See [Core Concepts: Optimizer matrices](/guide/concepts#optimizer-matrices). |
 | `--adapters <names>` | `ai-sdk` | Comma-separated adapter names (`ai-sdk`, `acp`). Runs the full config matrix once per adapter. |
 | `--concurrency <n>` | `2` | Number of parallel sandbox executions. Overrides manifest `concurrency` when set. |
-| `--fail-on-failure` | `false` | Exit with code 1 if any run in the benchmark fails. |
+| `--fail-on-failure` | `false` | Exit with code 1 if any run in the comparison sweep fails. |
 | `--min-solve-rate <rate>` | (none) | Exit with code 1 if solve rate is below this threshold (0–1). |
 | `--min-solve-rate-scope <scope>` | `global` | Apply `--min-solve-rate` globally or per agent config (`global`, `per-config`). |
 | `--report <format>` | (none) | Write a report after the bench (`json`, `jsonl`, `html`, `md`). |
@@ -768,7 +768,7 @@ The `--check-config` flag accepts both agent config YAMLs (top-level `track_tool
 
 ## `agr doctor`
 
-Run a pre-flight check of the local environment before your first bench. Checks Docker, API keys, the run database, an `agent.yaml`, and at least one test case.
+Run a pre-flight check of the local environment before your first comparison sweep. Checks Docker, API keys, the run database, an `agent.yaml`, and at least one test case.
 
 ```bash
 agr doctor

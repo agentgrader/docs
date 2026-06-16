@@ -60,7 +60,7 @@ const referenceSidebar: DefaultTheme.SidebarItem[] = [
         ],
       },
       {
-        text: 'Benchmark & CI',
+        text: 'Compare & optimize',
         collapsed: false,
         items: [
           { text: 'agr bench', link: '/reference/cli#agr-bench' },
@@ -129,7 +129,7 @@ const advancedSidebar: DefaultTheme.SidebarItem[] = [
 export default withMermaid(defineConfig({
   base: '/agr-docs/',
   title: 'Agentgrader',
-  description: 'Open-source framework for benchmarking AI coding agents on real tasks.',
+  description: 'Open-source coding agent optimizer. Evaluate, compare, and improve agents on real tasks.',
   head: [
     ['link', { rel: 'icon', href: '/LGO.svg', type: 'image/svg+xml' }],
     ['meta', { name: 'theme-color', content: '#111111' }],

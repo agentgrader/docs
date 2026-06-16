@@ -53,7 +53,7 @@ To use OpenRouter or OpenAI directly, set `provider: openrouter` or `provider: o
 Create a project directory and let `agr init` generate a ready-to-run agent config and a tiny, self-contained test case:
 
 ```bash
-mkdir my-benchmark && cd my-benchmark
+mkdir my-agent-project && cd my-agent-project
 agr init
 ```
 
@@ -67,7 +67,7 @@ If you'd rather start from an empty project and write your own test cases by han
 
 ## 4. Run your first evaluation
 
-From `my-benchmark/` (where your `.env` lives):
+From `my-agent-project/` (where your `.env` lives):
 
 ```bash
 agr run hello-world --verbose
@@ -93,9 +93,9 @@ Example verbose output:
 
 Once the run finishes, inspect the trace with `agr trace --last` (or add `--tools` to see a tool-call breakdown). Once you've added more test cases under `tasks/`, run `agr list-tests` to see every test case's `name`, path, and description, then refer to any of them the same way: `agr run <name>`.
 
-## 5. Run a benchmark (optional)
+## 5. Compare and optimize (optional)
 
-Point `agr bench` at a directory of test cases and one or more agent configs:
+Point `agr bench` at a directory of test cases and one or more agent configs to compare solve rate, cost, and quality across setups:
 
 ```bash
 agr bench \
@@ -103,11 +103,11 @@ agr bench \
   --config agent.yaml
 ```
 
-`--config` is a shorthand alias for `--configs` when you only have a single agent config. Use `--concurrency 2` (default) to run evaluations in parallel.
+`--config` is a shorthand alias for `--configs` when you only have a single agent config. Use `--concurrency 2` (default) to run evaluations in parallel. Add `--matrix matrix.yaml` for hyperparameter sweeps and Pareto summaries.
 
 ## Next steps
 
-- [Core Concepts](/guide/concepts): test cases, agent configs, scoring, and where results are stored
-- [Best Practices](/guide/best-practices): CI gates, `fail_to_pass`/`pass_to_pass`, matrix sweeps, troubleshooting
+- [Core Concepts](/guide/concepts): test cases, agent configs, comparison sweeps, and scoring
+- [Best Practices](/guide/best-practices): CI gates, `fail_to_pass`/`pass_to_pass`, optimizer matrix sweeps, troubleshooting
 - [CLI Reference](/reference/cli): full command and flag reference
 - [Programmatic API](/advanced/programmatic-api): embed evaluations in your own Node.js or Bun code

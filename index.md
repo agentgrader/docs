@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: Agentgrader
-  text: Benchmark AI coding agents
-  tagline: Run agents against real programming tasks in Docker sandboxes. Score with objective test suites, track cost and tokens, and compare architectures in CI.
+  text: Optimize coding agents
+  tagline: Evaluate agents on real tasks in Docker sandboxes. Compare configs, track cost and tokens, and iterate until your agent gets better.
   image:
     src: /LGO.svg
     alt: Agentgrader Logo
@@ -37,7 +37,7 @@ features:
     details: Install globally or embed programmatically. Works on Node.js 18+ and Bun with the same packages.
   - icon: 🧪
     title: CI ready
-    details: Validate YAML, gate on assert limits, run matrix sweeps, and integrate with GitHub Actions in minutes.
+    details: Validate YAML, gate on assert limits, run optimizer matrix sweeps, and integrate with GitHub Actions in minutes.
 ---
 
 ## Install in one line
@@ -46,12 +46,12 @@ features:
 
 ```bash [npm]
 npm install -g agentgrader
-agr init my-benchmark && cd my-benchmark
+agr init my-agent-project && cd my-agent-project
 ```
 
 ```bash [bun]
 bun add -g agentgrader
-agr init my-benchmark && cd my-benchmark
+agr init my-agent-project && cd my-agent-project
 ```
 
 :::

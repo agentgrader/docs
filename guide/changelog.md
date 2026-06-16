@@ -137,7 +137,7 @@ Full reference: [CLI](/reference/cli).
 
 ## Migration notes
 
-**1.6.0 — No breaking changes.** All new flags are opt-in. Name-based `agr run <name>` is additive: path forms still work.
+**1.6.0: No breaking changes.** All new flags are opt-in. Name-based `agr run <name>` is additive: path forms still work.
 
 **CI pipelines**: Add `--fail-on-failure` if your workflow assumed non-zero exit codes on agent failure. Previously `agr run`/`agr bench` exited `0` after a completed run regardless of pass/fail.
 

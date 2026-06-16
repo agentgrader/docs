@@ -1,6 +1,6 @@
 # Packages
 
-Agentgrader is published as a set of npm packages. Install only what you need: most users only need the CLI; library integrators pull in `@agentgrader/core` and adapters directly.
+Agentgrader is published as a set of npm packages for evaluating and optimizing coding agents. Install only what you need: most users only need the CLI; library integrators pull in `@agentgrader/core` and adapters directly.
 
 ## Architecture
 
@@ -115,4 +115,4 @@ Helpers behind `agr bench --matrix`: `expandMatrix()` generates the cartesian pr
 
 ### `agentgrader` (CLI)
 
-Terminal CLI (`agr`) with Ink dashboard for benchmarks. Depends on all packages above. Loads `.env` from the current working directory for API keys.
+Terminal CLI (`agr`) with Ink dashboard for comparison sweeps. Depends on all packages above. Loads `.env` from the current working directory for API keys.

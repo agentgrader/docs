@@ -1,6 +1,6 @@
 # Bench Manifest (`bench.yaml`)
 
-A bench manifest describes **which test suite** and **which agent configs** to use in a single `agr bench --manifest` invocation. Paths in the manifest are resolved relative to the manifest file location.
+A bench manifest describes **which test suite** and **which agent configs** to compare in a single `agr bench --manifest` invocation. Paths in the manifest are resolved relative to the manifest file location.
 
 ## Minimal example
 
@@ -33,7 +33,7 @@ bunx agentgrader bench --manifest bench.yaml
 
 **Type:** `string` (optional)
 
-Human-readable label for the benchmark. Shown in logs and useful in CI job names.
+Human-readable label for the comparison sweep. Shown in logs and useful in CI job names.
 
 ### `suite`
 
@@ -41,7 +41,7 @@ Human-readable label for the benchmark. Shown in logs and useful in CI job names
 
 Path to the directory containing test case folders (each with an `agr.yaml`). Resolved relative to the manifest file.
 
-Example: if `bench.yaml` lives in `my-benchmark/` and `suite: ./tasks`, Agentgrader loads every `agr.yaml` under `my-benchmark/tasks/`.
+Example: if `bench.yaml` lives in `my-agent-project/` and `suite: ./tasks`, Agentgrader loads every `agr.yaml` under `my-agent-project/tasks/`.
 
 ### `agents`
 
@@ -84,7 +84,7 @@ Maximum parallel sandbox runs. Defaults to the CLI default (`2`) when omitted. I
 ## Full example
 
 ```
-my-benchmark/
+my-agent-project/
   bench.yaml
   agents-configs/
     claude-sonnet.yaml
@@ -141,13 +141,13 @@ The tag filter requires a suite to be defined (either from the manifest or `--su
 ## CI usage
 
 ```yaml
-- name: Run benchmark
+- name: Run comparison sweep
   env:
     OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
   run: agr bench --manifest bench.yaml
 ```
 
-Validate test cases first with `agr validate --strict` (see [Best Practices](/guide/best-practices#validate-before-you-benchmark)).
+Validate test cases first with `agr validate --strict` (see [Best Practices](/guide/best-practices#validate-before-you-compare)).
 
 ## Related
 

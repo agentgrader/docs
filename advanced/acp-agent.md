@@ -1,6 +1,6 @@
 # ACP Agent Adapter
 
-Agentgrader can benchmark any [Agent Client Protocol (ACP)](https://agentclientprotocol.com/) compatible coding agent (Claude Code, Cursor Agent, Gemini CLI, and others) without writing a custom adapter.
+Agentgrader can evaluate and compare any [Agent Client Protocol (ACP)](https://agentclientprotocol.com/) compatible coding agent (Claude Code, Cursor Agent, Gemini CLI, and others) without writing a custom adapter.
 
 The `@agentgrader/agent-acp` package implements `AcpAgentAdapter`. Agentgrader acts as the **ACP client**: it spawns the agent as a subprocess, talks JSON-RPC 2.0 over stdio via `@agentclientprotocol/sdk`, and routes file and terminal tool calls into the Docker sandbox.
 
@@ -30,7 +30,7 @@ sequenceDiagram
 
 The ACP agent process runs on the **host** (where you invoke `agr`). Sandbox isolation is preserved because every filesystem and terminal operation the agent requests is forwarded to `SandboxHandle` inside the container. Session paths use `acp_cwd` (default `/app`, matching the Docker sandbox working directory).
 
-Permission prompts (`session/request_permission`) are auto-approved so benchmarks can run unattended in CI.
+Permission prompts (`session/request_permission`) are auto-approved so comparison sweeps can run unattended in CI.
 
 ## Install
 
@@ -48,7 +48,7 @@ bun add @agentgrader/agent-acp @agentgrader/core @agentgrader/sandbox-docker
 
 :::
 
-You must also install the external ACP agent binary you want to benchmark (for example `claude` with ACP mode, or `cursor-agent`) and ensure it is on your `PATH`.
+You must also install the external ACP agent binary you want to compare (for example `claude` with ACP mode, or `cursor-agent`) and ensure it is on your `PATH`.
 
 ## Agent config
 
@@ -179,7 +179,7 @@ wraps CLI tools operating on "the current project" will see the host
 filesystem wherever it was spawned, not the sandboxed task's fixture files
 at `/app`. Such a server is useful for tasks about its own host-side
 checkout (e.g. a toolkit's own source), but is not yet a sandbox-aware
-substitute for `toolkits:` on benchmark tasks for ACP - that would require
+substitute for `toolkits:` on comparison-sweep tasks for ACP - that would require
 ACP agent subprocesses themselves to spawn `mcpServers` stdio commands
 inside the sandbox container.
 
@@ -218,7 +218,7 @@ For ACP runs, `convertMcpServersForAcp` no longer skips stdio servers with
 (Docker and E2B do), the server entry is rewritten to spawn
 `@agentgrader/mcp-sandbox-proxy` (`agr-mcp-proxy`) on the host. The proxy
 forwards MCP stdio into the sandbox container so `/app/...` paths in
-`command`/`args` resolve against the task fixture—the same filesystem
+`command`/`args` resolve against the task fixture, the same filesystem
 `toolkits:` uses.
 
 Without `sandboxBridgeId`, the server is still skipped with a warning (the

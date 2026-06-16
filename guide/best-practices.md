@@ -1,6 +1,6 @@
 # Best Practices
 
-Practical patterns for teams running Agentgrader in day-to-day development and CI. These recommendations come from real benchmark workflows: fast feedback loops, reproducible scoring, and predictable cost.
+Practical patterns for teams using Agentgrader to improve coding agents in day-to-day development and CI. These recommendations come from real optimization workflows: fast feedback loops, reproducible scoring, and predictable cost.
 
 ## Start with `agr init`
 
@@ -10,14 +10,14 @@ Use the built-in scaffold instead of hand-writing every file:
 
 ```bash [npm]
 npm install -g agentgrader
-agr init my-benchmark
-cd my-benchmark
+agr init my-agent-project
+cd my-agent-project
 ```
 
 ```bash [bun]
 bun add -g agentgrader
-agr init my-benchmark
-cd my-benchmark
+agr init my-agent-project
+cd my-agent-project
 ```
 
 :::
@@ -36,7 +36,7 @@ Once that passes, replace the fixture and prompt with your own task. Keep the sa
 A layout that scales well for teams:
 
 ```
-my-benchmark/
+my-agent-project/
   bench.yaml                 # optional manifest for agr bench --manifest
   agent.yaml                 # default agent for quick agr run
   agents-configs/            # one YAML per architecture you want to compare
@@ -52,7 +52,7 @@ my-benchmark/
 
 Version-control test cases and agent configs. Ignore `.agr/` and `.env` in git.
 
-## Validate before you benchmark
+## Validate before you compare
 
 Agent runs are slow and cost money. Catch YAML mistakes first:
 
@@ -63,7 +63,7 @@ agr validate fix-greeting --strict
 
 `--strict` fails when SWE-bench fields (`test_command`, `fail_to_pass`, `pass_to_pass`) are missing. Use it in CI before any `agr bench` step. See [CI workflows](/guide/ci-workflows).
 
-`agr validate` accepts multiple test case names or a `--suite` directory, making it easy to gate a whole suite before benchmarking:
+`agr validate` accepts multiple test case names or a `--suite` directory, making it easy to gate a whole suite before running comparison sweeps:
 
 ```bash
 # Named list
@@ -123,7 +123,7 @@ Use [Bench Manifest YAML](/reference/bench-manifest-yaml) for suite + agent glob
 
 ## Compare adapters fairly
 
-When benchmarking an external ACP agent (Claude Code, Cursor Agent) against the built-in AI SDK loop, pass both adapters explicitly:
+When comparing an external ACP agent (Claude Code, Cursor Agent) against the built-in AI SDK loop, pass both adapters explicitly:
 
 ```bash
 agr bench \

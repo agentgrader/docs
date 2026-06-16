@@ -1,6 +1,6 @@
 # Programmatic API
 
-Embed Agentgrader in CI pipelines, custom tools, or evaluation scripts using the TypeScript packages published on npm.
+Embed Agentgrader in CI pipelines, custom tools, or optimization scripts using the TypeScript packages published on npm.
 
 ::: code-group
 
@@ -59,7 +59,7 @@ console.log(result.metrics);
 
 `AiSdkAgentAdapter` is the default adapter class. `OpenRouterAgentAdapter` remains available as a backwards-compatible alias from `@agentgrader/agent-openrouter`.
 
-To benchmark an external ACP agent instead:
+To evaluate an external ACP agent instead:
 
 ```typescript
 import { AcpAgentAdapter } from "@agentgrader/agent-acp";
@@ -83,7 +83,7 @@ See [ACP Agent Adapter](/advanced/acp-agent) for config fields and cross-adapter
 
 ## `runBenchmark()`
 
-Orchestrate multiple test cases against multiple agent configs:
+Orchestrate comparison sweeps across multiple test cases and agent configs:
 
 ```typescript
 import { runBenchmark } from "@agentgrader/core";

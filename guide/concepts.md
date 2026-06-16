@@ -1,6 +1,6 @@
 # Core Concepts
 
-Agentgrader evaluates coding agents against **test cases** in isolated sandboxes. This page explains the main building blocks and how they fit together.
+Agentgrader is a coding agent optimizer built on objective evaluations in isolated sandboxes. This page explains the main building blocks and how they fit together.
 
 ## Test case vs. agent config vs. run
 
@@ -9,9 +9,9 @@ Agentgrader evaluates coding agents against **test cases** in isolated sandboxes
 | **Test case** | `agr.yaml` + `fixture/` | Defines the problem: starting codebase, prompt, and success criteria |
 | **Agent config** | `agent.yaml` (any path) | Defines the agent: model, temperature, system prompt, toolkits |
 | **Run** | `agr run <testCase>` | One agent attempting one test case |
-| **Benchmark** | `agr bench --suite … --configs …` | Every test case in a suite × every agent config |
-| **Matrix benchmark** | `agr bench --suite … --matrix …` | Agent configs generated from an optimizer matrix YAML |
-| **Manifest benchmark** | `agr bench --manifest bench.yaml` | Suite + agent paths/glob in one manifest YAML |
+| **Comparison sweep** | `agr bench --suite … --configs …` | Every test case in a suite × every agent config |
+| **Optimizer sweep** | `agr bench --suite … --matrix …` | Agent configs generated from an optimizer matrix YAML |
+| **Manifest sweep** | `agr bench --manifest bench.yaml` | Suite + agent paths/glob in one manifest YAML |
 
 A **test case** is self-contained: an `agr.yaml` manifest and a `fixture/` directory with the starting code. You can version-control a folder per test case.
 
@@ -19,9 +19,9 @@ An **agent config** is reusable across many test cases. Pass it to `agr run` wit
 
 A **run** executes exactly one test case with one agent config. Results are written to the local database. See [Run history & export](/guide/persistence).
 
-A **benchmark** runs the Cartesian product of all test cases in a `--suite` directory against all listed agent configs. An interactive terminal dashboard shows progress.
+A **comparison sweep** (`agr bench`) runs the Cartesian product of all test cases in a `--suite` directory against all listed agent configs. An interactive terminal dashboard shows progress.
 
-A **matrix benchmark** expands a [matrix YAML](/reference/matrix-yaml), tags every resulting run with a shared `matrixId`, and prints a Pareto summary. Details: [Optimizer matrices](/guide/optimizer-matrices).
+An **optimizer sweep** expands a [matrix YAML](/reference/matrix-yaml), tags every resulting run with a shared `matrixId`, and prints a Pareto summary. Details: [Optimizer matrices](/guide/optimizer-matrices).
 
 ## The test case (`agr.yaml`)
 

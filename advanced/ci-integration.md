@@ -38,7 +38,7 @@ Supported formats: `json`, `jsonl`, `html`, `md`. Add `--report-include-traces` 
 GitHub Actions example with artifact upload:
 
 ```yaml
-      - name: Run benchmark
+      - name: Run comparison sweep
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -91,14 +91,14 @@ To also run toolkit security audits:
 agr validate --suite tasks/ --strict --audit-toolkits
 ```
 
-See [Best Practices: Validate before you benchmark](/guide/best-practices#validate-before-you-benchmark).
+See [Best Practices: Validate before you compare](/guide/best-practices#validate-before-you-compare).
 
 ## GitHub Actions example
 
-Benchmark on every pull request, with validate gate, dry-run preview, and report artifact:
+Run comparison sweeps on every pull request, with validate gate, dry-run preview, and report artifact:
 
 ```yaml
-name: Agentgrader Benchmarks
+name: Agentgrader Optimization
 
 on: [push, pull_request]
 
@@ -119,7 +119,7 @@ jobs:
       - name: Preview bench matrix (dry run)
         run: agr bench --suite tasks/ --config agent.yaml --dry-run
 
-      - name: Run benchmark
+      - name: Run comparison sweep
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -142,6 +142,6 @@ jobs:
 - **Docker** must be available on the runner. `ubuntu-latest` on GitHub Actions includes Docker.
 - **API keys** must come from encrypted secrets: never hardcode them. The CLI also reads a `.env` file if present, but CI should use `env:` / secrets instead.
 - **Concurrency**: use `--concurrency` to parallelize sandbox runs. Balance against runner CPU and Docker limits.
-- **Cost**: agent benchmarks consume LLM tokens. Consider running on a schedule or only on labeled PRs for large suites.
+- **Cost**: optimization sweeps consume LLM tokens. Consider running on a schedule or only on labeled PRs for large suites.
 
 For embedding evaluations in custom CI logic, see the [Programmatic API](/advanced/programmatic-api).

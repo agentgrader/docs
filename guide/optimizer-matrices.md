@@ -10,7 +10,7 @@ An **optimizer matrix** expands a YAML file into many agent configs via a cartes
 | **`--configs-dir` / `--manifest`** | Each agent is a fully defined architecture in its own YAML |
 | **Single `--config`** | Quick iteration on one agent |
 
-See [Bench Manifest YAML](/reference/bench-manifest-yaml) for manifest-based benches. Schema details: [Optimizer Matrix YAML](/reference/matrix-yaml).
+See [Bench Manifest YAML](/reference/bench-manifest-yaml) for manifest-based comparison sweeps. Schema details: [Optimizer Matrix YAML](/reference/matrix-yaml).
 
 ## Minimal example
 
@@ -39,7 +39,7 @@ This produces four configs (`2 models × 2 temperatures`), runs every test case 
 When each agent is a distinct architecture (different prompts, toolkits, adapters), prefer one YAML per agent:
 
 ```
-my-benchmark/
+my-agent-project/
   bench.yaml
   agents-configs/
     claude-debugger.yaml

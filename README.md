@@ -1,6 +1,6 @@
 # Agentgrader Documentation
 
-Documentation site for [Agentgrader](https://github.com/agentgrader/agr), built with [VitePress](https://vitepress.dev/).
+Documentation site for [Agentgrader](https://github.com/agentgrader/agr), the open-source coding agent optimizer. Built with [VitePress](https://vitepress.dev/).
 
 ## Local development
 
