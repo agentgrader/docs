@@ -141,6 +141,34 @@ agr bench --matrix matrix.yaml --suite tasks/
 
 Compare **TOOL USAGE BY CONFIG** and `agr trace --tools` across matrix arms. See [Toolkits guide](/guide/toolkits).
 
+## Tag-based suite subsets
+
+Add `tags:` to test cases by language, difficulty, or subsystem:
+
+```yaml
+# tasks/two-sum/agr.yaml
+name: two-sum
+tags:
+  - python
+  - easy
+```
+
+Then scope any command to that slice:
+
+```bash
+# See which test cases match
+agr list-tests --tags python
+
+# Validate only the python subset before spending bench budget
+agr validate --suite tasks/ --tags python --strict
+
+# Run only easy tasks in a matrix sweep
+agr bench --suite tasks/ --matrix matrix.yaml --tags easy --dry-run
+agr bench --suite tasks/ --matrix matrix.yaml --tags easy
+```
+
+Tag breakdowns (pass rate per tag) print automatically at the end of every `agr bench` run.
+
 ## Import a case from GitHub
 
 ```bash
