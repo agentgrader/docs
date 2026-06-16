@@ -605,13 +605,14 @@ Print a quick summary of the local run database without launching the interactiv
 
 ```bash
 agr status
+agr status --json   # machine-readable output
 ```
 
 Output includes:
 
 - Total runs with pass/fail/error breakdown
 - Number of unique test cases and agent configs
-- Total accumulated cost
+- Total accumulated cost and token usage (when available)
 - Timestamp of the most recent run
 
 ### Options
@@ -619,3 +620,6 @@ Output includes:
 | Flag | Default | Description |
 |---|---|---|
 | `--db <path>` | `.agr/db.sqlite` | SQLite database to read. |
+| `--json` | off | Emit JSON to stdout instead of formatted text. |
+
+The `--json` output contains: `exists`, `dbPath`, `totalRuns`, `passedRuns`, `failedRuns`, `erroredRuns`, `uniqueTestCases`, `uniqueConfigs`, `matrixRuns`, `totalCostUsd`, `totalTokensIn`, `totalTokensOut`, `lastRunAt`, `lastRunTestCaseId`, `lastRunAgentConfigId`.

@@ -75,6 +75,10 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | report by-config avg tokens | `agr bench --report` HTML and Markdown by-config tables now include `Avg tokens in` and `Avg tokens out` columns |
 | git-context toolkit | `examples/toolkits/git-context` adds `recent-changes` (recently modified files) and `file-log` (per-file commit history) as a second complete multi-tool toolkit reference |
 | status command | `agr status` prints a quick DB summary (total runs, pass/fail counts, unique test cases and configs, total cost, last run time) without launching the TUI |
+| bench avg tokens per run | `agr bench` result summary now shows `avg: Nin/Mout tok/run` when token data is available; multi-config per-config breakdown also shows per-config avg token counts for model cost and token-efficiency comparisons |
+| status token totals | `agr status` now shows `Tokens: N in / M out` when token data exists in the database |
+| status cleanup next hint | `agr cleanup --yes` now prints `Next: agr bench  \| agr list` after removing containers |
+| status --json | `agr status --json` emits machine-readable JSON for use in CI scripts and shell pipelines |
 
 **Earlier additions** (1.5.x):
 
