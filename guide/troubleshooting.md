@@ -44,6 +44,9 @@ Match `provider:` and `model:` in agent.yaml. Native model names require the mat
 **Symptom:** Agent passes command checks but regression fails.
 
 ```bash
+agr trace --last
+agr trace --last --quality
+# or by run ID:
 agr trace <runId>
 agr trace <runId> --quality
 ```
@@ -98,7 +101,7 @@ agr compare-baseline baselines/main.json baselines/pr.json
 
 ## Still stuck?
 
-1. `agr trace <runId> --quality`: scorer breakdown
-2. `agr compare <idA> <idB> --only-diff`: divergent steps
+1. `agr trace --last --quality`: scorer breakdown for the most recent run
+2. `agr compare <idA> <idB> --only-diff`: divergent steps between two runs
 3. [Debugging failed runs](/guide/debugging)
 4. [GitHub issues](https://github.com/agentgrader/agr/issues)
