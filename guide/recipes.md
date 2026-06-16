@@ -172,6 +172,23 @@ agr bench --manifest bench.yaml --tags python
 
 Tag breakdowns (pass rate per tag) print automatically at the end of every `agr bench` run.
 
+## Quick post-run inspection
+
+After any `agr run` or `agr bench`, use the `--last` shortcuts to inspect without looking up run IDs:
+
+```bash
+# Inspect the most recent run
+agr trace --last
+agr trace --last --quality
+agr trace --last --tools
+
+# Compare the two most recent runs (e.g. after an A/B bench)
+agr compare --last-two --only-diff
+
+# Export traces of the most recent run (for external analysis or OTel ingestion)
+agr export traces --last --format otlp --output last-trace.json
+```
+
 ## Import a case from GitHub
 
 ```bash
