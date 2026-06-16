@@ -773,6 +773,7 @@ Run a pre-flight check of the local environment before your first bench. Checks 
 ```bash
 agr doctor
 agr doctor --suite my-tasks/
+agr doctor --json | jq .passed
 ```
 
 Each check prints a status icon:
@@ -801,6 +802,9 @@ Checks performed:
 |---|---|---|
 | `--db <path>` | `.agr/db.sqlite` | Database path to check. |
 | `--suite <dir>` | `tasks` | Suite directory to scan for `agr.yaml` files. |
+| `--json` | `false` | Output a single JSON object (`passed`, `failureCount`, `warningCount`, `checks[]`) and suppress human-readable output; exits 1 when any check has `fail` status. |
+
+With `--json`, each entry in `checks` has `label`, `status` (`pass` \| `fail` \| `warn` \| `skip`), and optional `detail`.
 
 ## `agr cleanup`
 
