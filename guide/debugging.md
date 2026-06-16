@@ -15,11 +15,16 @@ agr trace <runId>
 agr trace <runId> --quality
 agr trace <runId> --tools
 
+# Compare two runs without looking up IDs
+agr compare --last-two --only-diff
 agr compare <runIdA> <runIdB> --only-diff
+
+# Browse all runs
 agr list
+agr list --plain
 ```
 
-Use `--verbose` during `agr run` to watch tool calls live. Run IDs appear in bench/run output and in `agr list`.
+Use `--verbose` during `agr run` to watch tool calls live. Run IDs appear in the next/inspect hint after `agr run`, and in `agr list`.
 
 ## What to check first
 
