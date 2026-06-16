@@ -97,6 +97,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | list --test-case | `agr list --plain --test-case <name>` filters the run list to a specific test case; consistent with status/trace/compare `--test-case` pattern |
 | list/status --config | `agr list --config <name>` and `agr status --config <name>` filter by agent config; useful for comparing performance between two configs via `agr status --config agent-a` vs `--config agent-b` |
 | export runs --format csv | `agr export runs --format csv --output runs.csv` writes a CSV file with one row per run; all fields including `metrics` (JSON-serialized) are included as columns; default filename is `export-runs.csv` |
+| bench --only-failed | `agr bench --suite tasks/ --only-failed` runs only the test cases that failed on their most recent DB run; enables tight fix-and-retry loops; exits cleanly when all previously-failed cases have since passed |
 
 **Earlier additions** (1.5.x):
 
