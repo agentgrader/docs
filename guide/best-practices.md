@@ -144,6 +144,8 @@ Full workflow: [Debugging failed runs](/guide/debugging).
 
 Custom CLI tools and skills need deliberate design, adoption tracking, and optional `setup.sh` hooks.
 
+Scaffold a new tool with `agr toolkit-add <name> --dir ./toolkits/my-tools`, which writes a `bin/<name>` shell stub and a `.claude/skills/<name>/SKILL.md` template. Audit what's actually shippable (bin tools, SKILL.md coverage, untracked names) with `agr toolkit-list ./toolkits/my-tools`, or add `--check-config agent.yaml` to diff the toolkit's `bin/` against your config's `track_tools`.
+
 Full guide: [Toolkits guide](/guide/toolkits).
 
 ## CI recommendations
