@@ -109,6 +109,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | init --ci | `agr init --ci` (and `agr init --blank --ci`) writes `.github/workflows/agr.yml` - a GitHub Actions workflow that installs agentgrader and runs `agr bench --suite tasks/ --fail-on-failure` on push and pull_request, wiring the CI gate in one command |
 | run/bench --model | `agr run <name> --model claude-opus-4-8` and `agr bench --suite tasks/ --model claude-opus-4-8` override the model for the run without editing the agent YAML; useful for quick model comparisons |
 | run/bench --max-steps | `agr run <name> --max-steps 5` and `agr bench --suite tasks/ --max-steps 5` override `max_steps` without editing YAML; combine with `--limit` for cheap smoke tests |
+| bench --skip-tags | `agr bench --suite tasks/ --skip-tags slow` excludes test cases with any of the specified tags; applied after `--tags` so you can include a broad set and then exclude a subset |
 
 **Earlier additions** (1.5.x):
 

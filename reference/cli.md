@@ -233,6 +233,7 @@ agr bench --manifest bench.yaml
 | `--judge-min-score <score>` | `0.7` | Minimum normalized judge score when `--judge-gate` is set. |
 | `--dry-run` | `false` | Print the resolved test case x config matrix and exit without starting any runs. Tags (if any) are shown inline per test case. |
 | `--tags <tags>` | (none) | Comma-separated list of tags; only test cases whose `tags:` list matches at least one are included. Requires `--suite`. |
+| `--skip-tags <tags>` | (none) | Comma-separated list of tags; test cases with any of these tags are excluded. Applied after `--tags`. Requires `--suite`. |
 | `--limit <n>` | (none) | Run only the first N test cases after filtering. Useful for quick smoke tests on large suites without running the full set. |
 | `--only-failed` | `false` | Run only the test cases that failed on their most recent run in the DB. Useful for tight fix-and-retry loops: bench the full suite once, fix failing cases, then re-run only those with `--only-failed`. Exits cleanly if all previously-failed cases have since passed. |
 | `--shuffle` | `false` | Randomize the order of test cases before running. Reduces order-dependent bias in large suites and helps surface flaky tests that only fail when run after certain other tests. |
