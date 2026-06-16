@@ -118,7 +118,17 @@ These fields enable per-test regression scoring, tamper guards, and gold-patch v
 
 **Type:** `string[]` (optional)
 
-Labels for tag-based pass-rate breakdowns in `agr bench` output.
+Labels for tag-based filtering and pass-rate breakdowns. Tags appear inline next to test case names in `agr list-tests` and `agr bench --dry-run` output, and are used by `--tags` to filter test cases in `agr bench --suite`, `agr validate --suite`, and `agr list-tests`. Example:
+
+```yaml
+tags:
+  - python
+  - swe-bench
+```
+
+```bash
+agr bench --suite tasks/ --config agent.yaml --tags python,swe-bench
+```
 
 ### `test_command`
 
