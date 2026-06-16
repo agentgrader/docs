@@ -8,7 +8,7 @@ Agentgrader evaluates coding agents against **test cases** in isolated sandboxes
 |---|---|---|
 | **Test case** | `agr.yaml` + `fixture/` | Defines the problem: starting codebase, prompt, and success criteria |
 | **Agent config** | `agent.yaml` (any path) | Defines the agent: model, temperature, system prompt, toolkits |
-| **Run** | `agr run <agr.yaml>` | One agent attempting one test case |
+| **Run** | `agr run <testCase>` | One agent attempting one test case |
 | **Benchmark** | `agr bench --suite … --configs …` | Every test case in a suite × every agent config |
 | **Matrix benchmark** | `agr bench --suite … --matrix …` | Agent configs generated from an optimizer matrix YAML |
 | **Manifest benchmark** | `agr bench --manifest bench.yaml` | Suite + agent paths/glob in one manifest YAML |

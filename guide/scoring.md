@@ -37,6 +37,8 @@ agr run my-case --config agent.yaml --llm-judge --llm-judge-provider openai
 ### Inspect metrics
 
 ```bash
+agr trace --last --quality
+# or by run ID:
 agr trace <runId> --quality
 ```
 
