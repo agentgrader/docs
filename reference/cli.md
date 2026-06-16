@@ -200,6 +200,26 @@ With `--json`, the live dashboard is skipped and a single JSON line is printed t
 
 `passed` is `true` (scored pass), `false` (scored fail), or `null` (run threw an error). On error the object contains only `passed: null`, `runId`, and `error`.
 
+With `--repeat N --json`, the output is a summary object instead:
+
+```json
+{
+  "testCaseId": "hello-world",
+  "agentConfigId": "my-agent",
+  "model": "claude-haiku-4-5-20251001",
+  "repeat": 5,
+  "passedRuns": 4,
+  "totalRuns": 5,
+  "solveRate": 0.8,
+  "totalCostUsd": 0.006,
+  "avgCostUsd": 0.0012,
+  "avgDurationMs": 4200,
+  "runs": [
+    { "runId": "...", "passed": true, "costUsd": 0.0012, "durationMs": 4100 }
+  ]
+}
+```
+
 ### Examples
 
 ```bash
@@ -221,9 +241,12 @@ agr run fix-greeting --config agent.yaml --fail-on-failure
 # LLM judge with a pass/fail gate
 agr run fix-greeting --config agent.yaml --llm-judge --judge-gate --judge-min-score 0.75
 
-# Machine-readable output for scripting
+# Machine-readable output for scripting (single run)
 result=$(agr run hello-world --json)
 echo "$result" | jq .passed
+
+# Flakiness measurement with JSON output (5 runs)
+agr run hello-world --repeat 5 --json | jq .solveRate
 ```
 
 ## `agr bench`
