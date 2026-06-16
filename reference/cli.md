@@ -201,6 +201,7 @@ agr bench --manifest bench.yaml
 | `--llm-judge-model <model>` | (provider default) | Model slug for the LLM judge. |
 | `--judge-gate` | `false` | Fail runs when the LLM judge score is below `--judge-min-score`. |
 | `--judge-min-score <score>` | `0.7` | Minimum normalized judge score when `--judge-gate` is set. |
+| `--dry-run` | `false` | Print the resolved test case x config matrix and exit without starting any runs. |
 
 Use only **one** agent source per run: `--manifest`, `--configs`/`--config`, `--configs-dir`, or `--matrix`.
 
@@ -249,6 +250,9 @@ agr bench --suite tasks/ --config agent.yaml \
 
 # Save baseline snapshot for PR comparison
 agr bench --suite tasks/ --config agent.yaml --save-baseline baselines/main.json
+
+# Preview what would run (no sandbox, no API calls)
+agr bench --suite tasks/ --matrix matrix.yaml --dry-run
 ```
 
 See [Bench Manifest YAML](/reference/bench-manifest-yaml) for the manifest file format.

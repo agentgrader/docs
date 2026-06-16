@@ -63,6 +63,14 @@ agr validate fix-greeting --strict
 
 `--strict` fails when SWE-bench fields (`test_command`, `fail_to_pass`, `pass_to_pass`) are missing. Use it in CI before any `agr bench` step. See [CI workflows](/guide/ci-workflows).
 
+Before a large bench (many tasks or a matrix sweep), use `--dry-run` to confirm the test case and config list without spending any API budget or starting Docker containers:
+
+```bash
+agr bench --suite tasks/ --matrix matrix.yaml --dry-run
+```
+
+The output shows every test case name and path, every expanded agent config with its model, and the total job count. Re-run without `--dry-run` once the matrix looks right.
+
 ## Fill in regression fields deliberately
 
 For SWE-bench style scoring, `agr validate` does **not** auto-populate `fail_to_pass` or `pass_to_pass`. You must run the test suite once, read TAP output, and copy test names into `agr.yaml`:
