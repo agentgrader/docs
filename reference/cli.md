@@ -656,6 +656,7 @@ agr status --test-case hello-world    # solve rate and avg cost for one task
 agr status --failed                   # count and cost of failing runs only
 agr status --by-config                # per-config breakdown sorted by solve rate
 agr status --by-config --test-case hello-world  # per-config for one task
+agr status --by-test-case             # per-task breakdown, hardest first
 ```
 
 Output includes:
@@ -678,5 +679,6 @@ Output includes:
 | `--passed` | `false` | Restrict stats to runs that passed. Mutually exclusive with `--failed`. |
 | `--failed` | `false` | Restrict stats to runs that failed. Mutually exclusive with `--passed`. |
 | `--by-config` | `false` | Show a per-config breakdown: solve rate, avg cost, avg duration, and avg tokens per agent config, sorted by solve rate. Combinable with `--since` and `--test-case` to scope the data. |
+| `--by-test-case` | `false` | Show a per-test-case breakdown: solve rate, avg cost, avg duration, sorted by solve rate ascending (hardest first). Combinable with `--since` and `--config` to scope the data. |
 
 The `--json` output contains: `exists`, `dbPath`, `since`, `testCase`, `config`, `passed`, `totalRuns`, `passedRuns`, `failedRuns`, `erroredRuns`, `solveRate`, `uniqueTestCases`, `uniqueConfigs`, `matrixRuns`, `totalCostUsd`, `avgCostUsd`, `avgDurationMs`, `totalTokensIn`, `totalTokensOut`, `lastRunAt`, `lastRunTestCaseId`, `lastRunAgentConfigId`. With `--by-config`, instead emits `{ exists, dbPath, since, testCase, byConfig: [{configId, total, passed, failed, solveRate, avgCostUsd, avgDurationMs, avgTokensIn, avgTokensOut}] }`.

@@ -102,6 +102,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | list/status --passed/--failed | `agr list --plain --failed` and `agr status --failed` filter to only failing runs; `--passed` for passing runs only; mutually exclusive; mirrors `agr export runs --passed/--failed` to complete the outcome-filter pattern across all analytics commands |
 | run --repeat | `agr run <name> --repeat 5` runs the same test case N times and prints a solve-rate summary (X/N PASS, avg cost, avg duration); useful for flakiness testing and verifying statistical consistency of a fix before scaling up with `agr bench` |
 | status --by-config | `agr status --by-config` shows a per-config breakdown: solve rate, avg cost, avg duration, avg tokens per agent config, sorted by solve rate; combinable with `--since` and `--test-case`; `--json` emits a `byConfig` array |
+| status --by-test-case | `agr status --by-test-case` shows a per-test-case breakdown: solve rate, avg cost, avg duration, sorted by solve rate ascending (hardest first); combinable with `--since` and `--config`; `--json` emits a `byTestCase` array |
 
 **Earlier additions** (1.5.x):
 
