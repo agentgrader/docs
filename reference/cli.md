@@ -536,6 +536,7 @@ agr export traces --run-id <runId> --format otlp --output trace.json
 | `--run-id <id>` | (none) | Run UUID for `export traces`. Use `--last` instead to avoid the lookup. |
 | `--last` | `false` | Export traces for the most recent run (alternative to `--run-id` for `export traces`). |
 | `--matrix-id <id>` | (none) | Filter `export runs` to a bench matrix id. |
+| `--last-matrix` | `false` | Export runs for the most recent matrix sweep (no `--matrix-id` needed). |
 | `--limit <n>` | (none) | Maximum number of runs to export. |
 
 Set `AGR_EXPORT_ON_BENCH=true` to auto-export run JSON after each `agr bench` completes (written under `.agr/exports/`).
