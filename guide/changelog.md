@@ -55,6 +55,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | validate failure hint | `agr validate` now prints a fix-and-rerun instruction when validation fails, mirroring `agr validate-toolkit`; multi-case runs list only the failing names |
 | run human duration | `agr run` RUN SUMMARY now shows duration in human-readable format (`1m 30s`) consistent with `agr trace`, `agr compare`, and `agr list --plain` |
 | bench/list TUI human duration | `agr bench` live dashboard and `agr list` TUI detail panel now show duration in human-readable format, completing the `formatDuration` rollout across all views |
+| report human duration | `agr bench --report` HTML and Markdown reports now show duration in human-readable format instead of raw milliseconds |
 
 **Earlier additions** (1.5.x):
 
