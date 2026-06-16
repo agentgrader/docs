@@ -141,6 +141,24 @@ agr bench --matrix matrix.yaml --suite tasks/
 
 Compare **TOOL USAGE BY CONFIG** and `agr trace --tools` across matrix arms. See [Toolkits guide](/guide/toolkits).
 
+## Toolkit security audit
+
+Before referencing a toolkit in production agents, audit it and then lock the bench to enforce it:
+
+```bash
+# Audit the toolkit for security issues (executable scripts, path traversal, etc.)
+agr validate-toolkit ./toolkits/my-toolkit
+
+# List all tools with their descriptions
+agr toolkit-list ./toolkits/my-toolkit
+
+# Check that every bin/ tool is tracked in your agent config
+agr toolkit-list ./toolkits/my-toolkit --check-config agent.yaml
+
+# Enforce clean audit in CI (exits 1 on any error finding)
+agr bench --suite tasks/ --strict-toolkits --fail-on-failure
+```
+
 ## Tag-based suite subsets
 
 Add `tags:` to test cases by language, difficulty, or subsystem:
