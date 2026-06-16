@@ -78,6 +78,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | bench avg tokens per run | `agr bench` result summary now shows `avg: Nin/Mout tok/run` when token data is available; multi-config per-config breakdown also shows per-config avg token counts for model cost and token-efficiency comparisons |
 | baseline avg tokens | `agr bench --save-baseline` now records `avgTokensIn` and `avgTokensOut`; `agr compare-baseline` shows `Avg tokens in` and `Avg tokens out` rows with percentage deltas when token data is present |
 | matrix summary tokens | `agr bench --matrix` summary now shows `tok:Nin/Mout` per config when token data is available, making model token-efficiency visible in matrix sweeps |
+| list tokens | `agr list --plain` shows `tokens: Nin/Mout` per run when available; `agr list` TUI detail panel also shows token counts alongside cost, duration, and steps |
 | init status hint | `agr init` and `agr init --blank` next-steps now include `agr status` as step 4, helping new users discover the DB summary command |
 | status token totals | `agr status` now shows `Tokens: N in / M out` when token data exists in the database |
 | status cleanup next hint | `agr cleanup --yes` now prints `Next: agr bench  \| agr list` after removing containers |
