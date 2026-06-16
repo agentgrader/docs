@@ -91,6 +91,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | list --since | `agr list --since <duration|date>` filters the run list to runs after a given point; applied before `--limit` |
 | export runs --test-case/--config | `agr export runs --test-case <id>` and `--config <id>` filter exported runs by test case or agent config (substring match); combinable with `--since` and `--limit` |
 | export runs --passed/--failed | `agr export runs --passed` or `--failed` filters to only passing or only failing runs; useful for building failure analysis pipelines |
+| compare --last-two --test-case | `agr compare --last-two --test-case <name>` compares the two most recent runs of a specific test case without needing run IDs |
 
 **Earlier additions** (1.5.x):
 

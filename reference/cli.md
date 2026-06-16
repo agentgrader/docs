@@ -443,6 +443,7 @@ Run IDs come from bench/run output or the `runs` table in `.agr/db.sqlite`. Both
 | `[runIdA]` | Required unless `--last-two` | First run to compare (shown as column A). |
 | `[runIdB]` | Required unless `--last-two` | Second run to compare (shown as column B). |
 | `--last-two` | `false` | Compare the two most recent runs without specifying IDs. |
+| `--test-case <name>` | (none) | With `--last-two`, scope to the two most recent runs for this specific test case (substring match on `testCaseId`). |
 | `--full` | `false` | Print full step content without the 200-character truncation used by `agr trace`. |
 | `--only-diff` | `false` | Show only divergent steps, plus one step of context before and after each divergence. |
 
@@ -460,6 +461,9 @@ agr compare <runIdA> <runIdB> --only-diff --full
 
 # Compare the two most recent runs (no IDs needed)
 agr compare --last-two --only-diff
+
+# Compare the two most recent runs of a specific test case
+agr compare --last-two --test-case hello-world
 ```
 
 ## `agr compare-baseline`
