@@ -414,6 +414,7 @@ agr list
 | `--limit <n>` | `100` | Maximum number of most-recent runs to load. |
 | `--plain` | `false` | Print a plain text list instead of the interactive UI. Used automatically when stdout is not a TTY. |
 | `--since <duration\|date>` | (none) | Only show runs after this point. Accepts relative durations (`1h`, `24h`, `7d`) or ISO timestamps. Applied before `--limit`. |
+| `--test-case <name>` | (none) | Only show runs for this specific test case (substring match on `testCaseId`). Applied before `--limit`. |
 
 ### Examples
 
@@ -426,6 +427,9 @@ agr list --limit 20 --plain
 
 # Show only runs from the last 24 hours
 agr list --plain --since 24h
+
+# Show all runs for a specific test case
+agr list --plain --test-case hello-world
 ```
 
 In the interactive UI, use the arrow keys (or `j`/`k`) to move through the run list, `Enter` to open a run's detail view (agent diff plus a trace preview), `c` to start a diff comparison between two runs, `b`/`Esc` to go back, and `q` to quit.
