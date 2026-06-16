@@ -117,6 +117,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | bench --json | `agr bench --suite tasks/ --json` outputs a single JSON object with `passed`, `passedRuns`, `totalRuns`, `solveRate`, `totalCostUsd`, `elapsedMs`, `byConfig`, and `runs` arrays, suppressing the live dashboard; `gateReasons` is non-empty when a CI gate (`--fail-on-failure`, `--min-solve-rate`) triggers |
 | bench --name | `agr bench --suite tasks/ --name "python"` filters test cases by name substring (case-insensitive), applied after `--tags` and `--skip-tags`; useful for quickly running a subset of a large suite without listing every case explicitly |
 | list-tests --name | `agr list-tests --name "fix"` filters the discovery output by name substring (case-insensitive); combinable with `--tags`, `--count`, and `--json` to build targeted scripting pipelines |
+| validate --json | `agr validate fix-greeting --json` outputs a JSON object with `passed`, `passedCount`, `totalCount`, and `results[]` (per-test-case `ok`, `name`, `path`, `checks[]`); suppresses per-check console output; works with `--suite` and `--strict` |
 
 **Earlier additions** (1.5.x):
 

@@ -391,6 +391,29 @@ When `test_command` is missing, execution checks are skipped (shown with ⚠️)
 | `--sandbox <provider>` | `docker` | Sandbox provider used for execution checks: `docker` or `e2b`. |
 | `--audit-toolkits` | `false` | Run the toolkit security audit on every `toolkits:` path referenced by the test case. |
 | `--tags <tags>` | (none) | Comma-separated list of tags; only validate test cases whose `tags:` list contains at least one match. Requires `--suite`. |
+| `--json` | `false` | Output results as a single JSON object and suppress per-check console output. |
+
+### JSON output
+
+With `--json`, a single JSON object is printed to stdout:
+
+```json
+{
+  "passed": true,
+  "passedCount": 2,
+  "totalCount": 2,
+  "results": [
+    {
+      "ok": true,
+      "name": "hello-world",
+      "path": "/tasks/hello-world/agr.yaml",
+      "checks": [
+        { "name": "required-fields", "passed": true, "detail": "ok" }
+      ]
+    }
+  ]
+}
+```
 
 ### Examples
 
@@ -411,6 +434,9 @@ agr validate --suite tasks/ --strict
 
 # Validate only the python subset
 agr validate --suite tasks/ --tags python --strict
+
+# Machine-readable output for scripting
+agr validate fix-greeting --json | jq .passed
 ```
 
 ## `agr import-pr`
