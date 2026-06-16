@@ -56,6 +56,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | run human duration | `agr run` RUN SUMMARY now shows duration in human-readable format (`1m 30s`) consistent with `agr trace`, `agr compare`, and `agr list --plain` |
 | bench/list TUI human duration | `agr bench` live dashboard and `agr list` TUI detail panel now show duration in human-readable format, completing the `formatDuration` rollout across all views |
 | report human duration | `agr bench --report` HTML and Markdown reports now show duration in human-readable format instead of raw milliseconds |
+| run trace-id hint | `agr run` next/inspect hint now uses the actual run ID (`agr trace <runId>`) instead of `--last`, so the reference stays stable after subsequent runs |
 
 **Earlier additions** (1.5.x):
 
