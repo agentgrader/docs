@@ -18,9 +18,13 @@ Test case folders on disk are never modified; only the sandbox copy inside the c
 
 ```bash
 agr list
+# Most recent run (no ID needed)
+agr trace --last
+agr trace --last --quality
+agr trace --last --tools
+# By run ID
 agr trace <runId>
 agr trace <runId> --quality
-agr trace <runId> --tools
 agr compare <runIdA> <runIdB> --only-diff
 ```
 
