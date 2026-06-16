@@ -165,6 +165,9 @@ agr validate --suite tasks/ --tags python --strict
 # Run only easy tasks in a matrix sweep
 agr bench --suite tasks/ --matrix matrix.yaml --tags easy --dry-run
 agr bench --suite tasks/ --matrix matrix.yaml --tags easy
+
+# With a bench manifest, --tags works the same way (suite comes from the manifest)
+agr bench --manifest bench.yaml --tags python
 ```
 
 Tag breakdowns (pass rate per tag) print automatically at the end of every `agr bench` run.
