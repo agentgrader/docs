@@ -535,6 +535,42 @@ agr export traces --run-id <runId> --format otlp --output trace.json
 
 Set `AGR_EXPORT_ON_BENCH=true` to auto-export run JSON after each `agr bench` completes (written under `.agr/exports/`).
 
+## `agr toolkit-add`
+
+Scaffold a new toolkit tool: creates a `bin/<name>` shell script stub and a `.claude/skills/<name>/SKILL.md` description template in the target toolkit directory.
+
+```bash
+agr toolkit-add find-usages
+agr toolkit-add run-tests --dir ./toolkits/jetbrains-tools
+```
+
+### Options
+
+| Flag | Default | Description |
+|---|---|---|
+| `<name>` | Required | Tool name (lowercase letters, digits, and hyphens). |
+| `--dir <dir>` | `./toolkit` | Toolkit directory to scaffold into. |
+
+After scaffolding, implement `bin/<name>` and fill in the SKILL.md description, then reference the toolkit directory from `toolkits:` in an agent config or test case. See [Toolkits](/guide/toolkits) for the full layout and conventions.
+
+## `agr toolkit-list`
+
+List every `bin/` tool in a toolkit directory alongside its SKILL.md description. Also runs the toolkit security audit. Useful for auditing what tools are actually present before referencing the toolkit in a bench.
+
+```bash
+agr toolkit-list ./toolkits/jetbrains-tools
+agr toolkit-list ./toolkits/jetbrains-tools --check-config matrix-jetbrains-toolkits.yaml
+```
+
+### Options
+
+| Flag | Default | Description |
+|---|---|---|
+| `<dir>` | Required | Path to the toolkit directory (must contain `bin/`). |
+| `--check-config <file>` | (none) | Diff the toolkit's `bin/` tools against an agent config's `track_tools` and `require_tools_before_submit` lists. Reports tools that are present in `bin/` but not tracked, and tracked names that are missing from `bin/`. |
+
+The `--check-config` flag accepts both agent config YAMLs (top-level `track_tools`) and matrix YAMLs (`base.track_tools`). This catches the common drift where a new toolkit tool is added to `bin/` but forgotten in one or more agent configs.
+
 ## `agr cleanup`
 
 Lists (or, with `--yes`, removes) leftover sandbox containers from runs whose process exited or was killed before the `cleanup` workflow step could call `destroy()` - for example a hung provider request that an external `timeout` had to kill. These show up as containers running `tail -f /dev/null`, labeled `agentgrader.sandbox=true` by `DockerSandboxProvider`.
