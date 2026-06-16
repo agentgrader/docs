@@ -35,6 +35,7 @@ agr init my-project
 This creates:
 
 - `agent.yaml`: a baseline agent config using `claude-haiku-4-5-20251001` with `provider: anthropic` and `max_steps: 15`.
+- `.gitignore`: ignores `.agr/` (run history and exports) and `.env`. Skipped if a `.gitignore` already exists.
 - `tasks/hello-world/agr.yaml` and `tasks/hello-world/fixture/`: a tiny, self-contained test case. The fixture is a `math.js` with an unimplemented `add(a, b)` and a `math.test.js` using Node's built-in test runner (`node --test`), so no `npm install` or `pip install` is needed inside the sandbox.
 
 After scaffolding, set `ANTHROPIC_API_KEY` in your environment and run:
@@ -538,6 +539,8 @@ agr export traces --run-id <runId> --format otlp --output trace.json
 | `--matrix-id <id>` | (none) | Filter `export runs` to a bench matrix id. |
 | `--last-matrix` | `false` | Export runs for the most recent matrix sweep (no `--matrix-id` needed). |
 | `--limit <n>` | (none) | Maximum number of runs to export. |
+
+Each `export runs` record includes: `id`, `testCaseId`, `agentConfigId`, `passed`, `costUsd`, `durationMs`, `stepsCount`, `tokensIn`, `tokensOut`, `matrixId`, and `metrics`.
 
 Set `AGR_EXPORT_ON_BENCH=true` to auto-export run JSON after each `agr bench` completes (written under `.agr/exports/`).
 
