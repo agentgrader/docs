@@ -32,6 +32,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | toolkit-list untracked hint | `agr toolkit-list --check-config` prints the exact `track_tools:` YAML snippet to copy when untracked tools are found |
 | Bench startup log | `agr bench` now prints `Starting N run(s), concurrency: M` before the live dashboard, making total jobs and concurrency visible without `--dry-run` |
 | Bench elapsed time | `agr bench` result summary now shows `elapsed: Xs` wall-clock time |
+| Export record count | `agr export runs` and `agr export traces` now print the record count in the output line, e.g. `Export written to export-runs.json (42 records)` |
 
 **Earlier additions** (1.5.x):
 
