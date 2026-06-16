@@ -176,6 +176,28 @@ Exit codes: `0` once the run completes by default, even when the agent scores `F
 | `--llm-judge-model <model>` | (provider default) | Model slug for the LLM judge. |
 | `--judge-gate` | `false` | Fail the run when the LLM judge score is below `--judge-min-score`. |
 | `--judge-min-score <score>` | `0.7` | Minimum normalized judge score when `--judge-gate` is set. |
+| `--json` | `false` | Output the run result as a single JSON object and suppress the live Ink UI. Useful for scripting and CI pipelines. |
+
+### JSON output
+
+With `--json`, the live dashboard is skipped and a single JSON line is printed to stdout:
+
+```json
+{
+  "passed": true,
+  "runId": "3fa85f64-...",
+  "testCaseId": "hello-world",
+  "agentConfigId": "my-agent",
+  "model": "claude-haiku-4-5-20251001",
+  "costUsd": 0.0012,
+  "durationMs": 4200,
+  "stepsCount": 3,
+  "metrics": null,
+  "error": null
+}
+```
+
+`passed` is `true` (scored pass), `false` (scored fail), or `null` (run threw an error). On error the object contains only `passed: null`, `runId`, and `error`.
 
 ### Examples
 
@@ -197,6 +219,10 @@ agr run fix-greeting --config agent.yaml --fail-on-failure
 
 # LLM judge with a pass/fail gate
 agr run fix-greeting --config agent.yaml --llm-judge --judge-gate --judge-min-score 0.75
+
+# Machine-readable output for scripting
+result=$(agr run hello-world --json)
+echo "$result" | jq .passed
 ```
 
 ## `agr bench`
