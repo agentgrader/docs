@@ -22,6 +22,9 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | Toolkit commands | `agr toolkit-add <name>`, `agr toolkit-list <dir>` |
 | Positional bench args | `agr bench task-a task-b --matrix matrix.yaml` |
 | Next-step hints | `agr run`, `agr bench`, `agr validate` print a contextual `Next:` line on success |
+| Tags inline | `agr list-tests` and `agr bench --dry-run` show `[tag1, tag2]` per row when any test case has tags |
+| Bench result summary | Non-matrix bench prints `Result: N/M PASS (X%) cost: $Y`; multi-config adds per-config breakdown |
+| Bugfix: trace --last steps | `agr trace --last` was showing 0 steps (bug: passed `undefined` to `getTraces`); now fixed |
 
 **Earlier additions** (1.5.x):
 
