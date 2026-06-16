@@ -99,6 +99,22 @@ If E2B fails to start, verify the API key and network egress from CI.
 agr compare-baseline baselines/main.json baselines/pr.json
 ```
 
+## Tag filter has no effect
+
+**Symptom:** `agr bench --tags python` runs all test cases, ignoring the filter.
+
+`--tags` requires `--suite` to work. Without `--suite`, the filter is skipped (a warning is printed). Either add `--suite <dir>`, or pass test case names positionally:
+
+```bash
+# correct: tag filter applies inside --suite
+agr bench --suite tasks/ --config agent.yaml --tags python
+
+# wrong: --tags ignored without --suite (warning printed)
+agr bench task-a --config agent.yaml --tags python
+```
+
+The same constraint applies to `agr validate --tags`.
+
 ## Still stuck?
 
 1. `agr trace --last --quality`: scorer breakdown for the most recent run
