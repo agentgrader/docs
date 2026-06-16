@@ -67,6 +67,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | bench avg steps per run | `agr bench` result now shows `avg: N steps/run` alongside avg cost and avg duration; per-config breakdown also shows avg step count; duration avg note now uses consistent `avg:` prefix |
 | report by-config avg steps | `agr bench --report` HTML and Markdown by-config tables now include `Avg steps` alongside avg cost and avg duration |
 | code-search toolkit skills | `examples/toolkits/code-search` now includes `SKILL.md` files for `find-todos` and `find-usages`, plus a `find-usages` bin script as a complete multi-tool toolkit reference |
+| aggregate steps tests | `aggregateResults` tests now cover `avgStepsCount` in the main averages test and the missing-fields zero-fallback test |
 
 **Earlier additions** (1.5.x):
 
