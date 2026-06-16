@@ -42,6 +42,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | bench error distinction | `agr bench` result now shows separate `Failed:` (test didn't pass) and `Errored:` (sandbox crash) lines, with the error snippet for crashes |
 | bench startup breakdown | `agr bench` startup log now shows `N test case(s) x M config(s) = K run(s)` breakdown for multi-config runs |
 | bench tag breakdown notes | Tag breakdown rows now show `all passed` or `none passed` annotation for 100%/0% solve rate tags |
+| bench multi-config failed cases | `agr bench` multi-config result now shows `Failed:` and `Errored:` sub-lines per agent config, so you can see which test cases each config is stuck on at a glance |
 
 **Earlier additions** (1.5.x):
 
