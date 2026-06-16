@@ -274,6 +274,7 @@ agr bench --manifest bench.yaml
 | `--shuffle` | `false` | Randomize the order of test cases before running. Reduces order-dependent bias in large suites and helps surface flaky tests that only fail when run after certain other tests. |
 | `--model <model>` | (none) | Override the model for all agent configs in this bench run (e.g. `claude-opus-4-8`). Useful for quick model comparisons without editing YAML or creating a new agent config file. |
 | `--max-steps <n>` | (none) | Override `max_steps` for all agent configs in this bench run. Combine with `--limit` for fast, cheap smoke tests: `--limit 3 --max-steps 5`. |
+| `--json` | `false` | Output bench results as a single JSON object and suppress the live dashboard. Useful for scripting and CI pipelines. |
 
 Use only **one** agent source per run: `--manifest`, `--configs`/`--config`, `--configs-dir`, or `--matrix`.
 
@@ -328,7 +329,36 @@ agr bench --suite tasks/ --matrix matrix.yaml --dry-run
 
 # Run only test cases tagged "python" or "fast"
 agr bench --suite tasks/ --config agent.yaml --tags python,fast
+
+# Machine-readable output for scripting
+result=$(agr bench --suite tasks/ --config agent.yaml --json)
+echo "$result" | jq .solveRate
 ```
+
+### JSON output
+
+With `--json`, the dashboard is suppressed and a single JSON object is printed to stdout:
+
+```json
+{
+  "passed": false,
+  "passedRuns": 2,
+  "totalRuns": 3,
+  "solveRate": 0.6667,
+  "totalCostUsd": 0.0045,
+  "elapsedMs": 12400,
+  "matrixId": null,
+  "gateReasons": [],
+  "byConfig": [
+    { "configId": "my-agent", "passedRuns": 2, "totalRuns": 3, "solveRate": 0.6667, "totalCostUsd": 0.0045 }
+  ],
+  "runs": [
+    { "runId": "3fa85f64-...", "testCaseId": "hello-world", "agentConfigId": "my-agent", "passed": true, "costUsd": 0.0012, "durationMs": 4200, "stepsCount": 3, "error": null }
+  ]
+}
+```
+
+`passed` is `true` only when all runs passed. `gateReasons` is a non-empty array when `--fail-on-failure` or `--min-solve-rate` triggers; the exit code still reflects the gate result.
 
 See [Bench Manifest YAML](/reference/bench-manifest-yaml) for the manifest file format.
 

@@ -114,6 +114,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | init --example python | `agr init --example python` scaffolds a Python hello-world test case with `math.py` and `test_math.py` verified with `pytest -x` instead of the default JS/Node example |
 | list-tests --count | `agr list-tests --count` prints only the number of matching test cases as a bare integer; useful in shell scripts and CI conditions |
 | run --json | `agr run <name> --json` outputs the run result as a single JSON object and suppresses the live Ink UI; `passed` is `true`/`false`/`null`; useful for scripting (`result=$(agr run hello-world --json); echo $result \| jq .passed`) and CI pipelines that need structured output |
+| bench --json | `agr bench --suite tasks/ --json` outputs a single JSON object with `passed`, `passedRuns`, `totalRuns`, `solveRate`, `totalCostUsd`, `elapsedMs`, `byConfig`, and `runs` arrays, suppressing the live dashboard; `gateReasons` is non-empty when a CI gate (`--fail-on-failure`, `--min-solve-rate`) triggers |
 
 **Earlier additions** (1.5.x):
 
