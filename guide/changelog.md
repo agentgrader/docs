@@ -143,4 +143,4 @@ Full reference: [CLI](/reference/cli).
 
 **ACP sandboxed MCP**: Stdio servers with `sandboxed: true` are rewritten to `agr-mcp-proxy` when the sandbox exposes `sandboxBridgeId`. See [ACP Agent Adapter](/advanced/acp-agent#sandboxed-true-for-acp-agents-via-agr-mcp-proxy).
 
-**Docs submodule**: This site lives in [agentgrader/agr-docs](https://github.com/agentgrader/agr-docs). Report doc issues there or via edit links on each page.
+**Docs submodule**: This site lives in [agentgrader/docs](https://github.com/agentgrader/docs). Report doc issues there or via edit links on each page.

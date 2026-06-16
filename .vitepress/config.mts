@@ -127,7 +127,7 @@ const advancedSidebar: DefaultTheme.SidebarItem[] = [
 ]
 
 export default withMermaid(defineConfig({
-  base: '/agr-docs/',
+  base: '/docs/',
   title: 'Agentgrader',
   description: 'Open-source coding agent optimizer. Evaluate, compare, and improve agents on real tasks.',
   head: [
@@ -197,7 +197,7 @@ export default withMermaid(defineConfig({
       },
     },
     editLink: {
-      pattern: 'https://github.com/agentgrader/agr-docs/edit/main/:path',
+      pattern: 'https://github.com/agentgrader/docs/edit/main/:path',
       text: 'Edit this page on GitHub',
     },
     footer: {

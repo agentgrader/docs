@@ -18,7 +18,7 @@ npm run docs:dev
 
 :::
 
-Open `http://localhost:5173/agr-docs/` (base path is configured for GitHub Pages).
+Open `http://localhost:5173/docs/` (base path is configured for GitHub Pages).
 
 ## Build and preview
 
@@ -29,7 +29,7 @@ bun run docs:preview
 
 ## Deploy
 
-Pushes to `main` deploy automatically via GitHub Actions (`.github/workflows/deploy.yml`) to GitHub Pages at `/agr-docs/`.
+Pushes to `main` deploy automatically via GitHub Actions (`.github/workflows/deploy.yml`) to GitHub Pages at `/docs/`.
 
 ## Features
 
