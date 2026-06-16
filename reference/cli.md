@@ -559,14 +559,16 @@ Export run metadata or step traces from `.agr/db.sqlite` for downstream analytic
 agr export runs --format jsonl --output runs.jsonl
 agr export runs --format csv --output runs.csv
 agr export traces --run-id <runId> --format otlp --output trace.json
+agr export traces --test-case hello-world --format jsonl --output hello-traces.jsonl
+agr export traces --last --test-case hello-world --format otlp --output last-hello.json
 ```
 
 ### Subcommands
 
 | Subcommand | Description |
 |---|---|
-| `runs` | Export run rows (optionally filtered by `--matrix-id`). |
-| `traces` | Export step traces for a single run (`--run-id` or `--last` required). |
+| `runs` | Export run rows with optional filters. |
+| `traces` | Export step traces. Use `--run-id` or `--last` for a single run, or `--test-case` / `--config` to export traces for all matching runs at once. |
 
 ### Options
 
@@ -575,16 +577,18 @@ agr export traces --run-id <runId> --format otlp --output trace.json
 | `--format <format>` | `json` | Export format: `json`, `jsonl`, `csv` (runs only), or `otlp` (traces only). |
 | `--output <path>` | auto-named | Output file path. |
 | `--db <path>` | `.agr/db.sqlite` | SQLite database to read. |
-| `--run-id <id>` | (none) | Run UUID for `export traces`. Use `--last` instead to avoid the lookup. |
-| `--last` | `false` | Export traces for the most recent run (alternative to `--run-id` for `export traces`). |
+| `--run-id <id>` | (none) | Run UUID for `export traces` (single-run). |
+| `--last` | `false` | Export the most recent run's traces. Combines with `--test-case` and `--config` to scope to the most recent run matching those filters. |
 | `--matrix-id <id>` | (none) | Filter `export runs` to a bench matrix id. |
 | `--last-matrix` | `false` | Export runs for the most recent matrix sweep (no `--matrix-id` needed). |
 | `--limit <n>` | (none) | Maximum number of runs to export. |
-| `--since <duration\|date>` | (none) | Filter `export runs` to runs created after this point. Accepts relative durations (`1h`, `24h`, `7d`) or ISO timestamps (`2026-06-15T00:00:00Z`). |
-| `--test-case <id>` | (none) | Filter `export runs` to runs whose `testCaseId` matches (substring). Useful for exporting all runs of a single task. |
-| `--config <id>` | (none) | Filter `export runs` to runs whose `agentConfigId` matches (substring). |
-| `--passed` | `false` | Export only runs that passed. Mutually exclusive with `--failed`. |
-| `--failed` | `false` | Export only runs that failed. Mutually exclusive with `--passed`. |
+| `--since <duration\|date>` | (none) | Filter to runs created after this point. Accepts relative durations (`1h`, `24h`, `7d`) or ISO timestamps (`2026-06-15T00:00:00Z`). Works for both `runs` and multi-run `traces` export. |
+| `--test-case <id>` | (none) | Filter by `testCaseId` (substring match). For `export runs`: filter run rows. For `export traces`: export traces for all matching runs (or scope `--last` to the most recent matching run). |
+| `--config <id>` | (none) | Filter by `agentConfigId` (substring match). Works for both `runs` and `traces`. |
+| `--passed` | `false` | Export only runs that passed. Mutually exclusive with `--failed`. Works for both `runs` and multi-run `traces`. |
+| `--failed` | `false` | Export only runs that failed. Mutually exclusive with `--passed`. Works for both `runs` and multi-run `traces`. |
+
+**Multi-run trace export:** when `--test-case` or `--config` is given without `--run-id` or `--last`, `export traces` fetches traces for every matching run. JSON output is an array of `{ runId, testCaseId, agentConfigId, passed, resourceSpans }` objects; JSONL output is one OTel JSON per line.
 
 Each `export runs` record includes: `id`, `testCaseId`, `agentConfigId`, `passed`, `costUsd`, `durationMs`, `stepsCount`, `tokensIn`, `tokensOut`, `matrixId`, and `metrics`. For `--format csv`, all fields are included as columns; `metrics` is JSON-serialized in the cell.
 

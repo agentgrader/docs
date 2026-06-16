@@ -105,6 +105,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | status --by-test-case | `agr status --by-test-case` shows a per-test-case breakdown: solve rate, avg cost, avg duration, sorted by solve rate ascending (hardest first); combinable with `--since` and `--config`; `--json` emits a `byTestCase` array |
 | bench --shuffle | `agr bench --suite tasks/ --shuffle` randomizes test case order before running; reduces order-dependent bias and helps surface order-sensitive flaky tests |
 | status --top | `agr status --by-test-case --top 5` or `--by-config --top 3` caps the breakdown output to N entries |
+| export traces --test-case | `agr export traces --test-case hello-world` exports traces for all matching runs without a run ID; `--config`, `--since`, `--passed`, and `--limit` also filter multi-run trace exports; `agr export traces --last --test-case <name>` now correctly scopes to the most recent run for that test case (was ignoring `--test-case` before) |
 
 **Earlier additions** (1.5.x):
 
