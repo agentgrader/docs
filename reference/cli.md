@@ -177,6 +177,7 @@ Exit codes: `0` once the run completes by default, even when the agent scores `F
 | `--llm-judge-model <model>` | (provider default) | Model slug for the LLM judge. |
 | `--judge-gate` | `false` | Fail the run when the LLM judge score is below `--judge-min-score`. |
 | `--judge-min-score <score>` | `0.7` | Minimum normalized judge score when `--judge-gate` is set. |
+| `--step-timeout <ms>` | (none) | Override `step_timeout_ms` from the agent config for this run only. Sets the per-LLM-call abort timeout in milliseconds. Useful in CI to cap provider latency without editing YAML (default is 120000). |
 | `--json` | `false` | Output the run result as a single JSON object and suppress the live Ink UI. Useful for scripting and CI pipelines. |
 
 ### JSON output
@@ -299,6 +300,7 @@ agr bench --manifest bench.yaml
 | `--model <model>` | (none) | Override the model for all agent configs in this bench run (e.g. `claude-opus-4-8`). Useful for quick model comparisons without editing YAML or creating a new agent config file. |
 | `--max-steps <n>` | (none) | Override `max_steps` for all agent configs in this bench run. Combine with `--limit` for fast, cheap smoke tests: `--limit 3 --max-steps 5`. |
 | `--name <substring>` | (none) | Filter test cases by name substring (case-insensitive). Applied after `--tags` and `--skip-tags`. Requires `--suite`. |
+| `--step-timeout <ms>` | (none) | Override `step_timeout_ms` for all agent configs in this bench run. Sets the per-LLM-call abort timeout in milliseconds. Useful in CI to cap provider latency without editing YAML (default is 120000). |
 | `--json` | `false` | Output bench results as a single JSON object and suppress the live dashboard. Useful for scripting and CI pipelines. |
 
 Use only **one** agent source per run: `--manifest`, `--configs`/`--config`, `--configs-dir`, or `--matrix`.
@@ -414,6 +416,7 @@ When `test_command` is missing, execution checks are skipped (shown with ⚠️)
 | `--sandbox <provider>` | `docker` | Sandbox provider used for execution checks: `docker` or `e2b`. |
 | `--audit-toolkits` | `false` | Run the toolkit security audit on every `toolkits:` path referenced by the test case. |
 | `--tags <tags>` | (none) | Comma-separated list of tags; only validate test cases whose `tags:` list contains at least one match. Requires `--suite`. |
+| `--name <substring>` | (none) | Filter test cases by name substring (case-insensitive). Applied after `--tags`. Requires `--suite`. |
 | `--json` | `false` | Output results as a single JSON object and suppress per-check console output. |
 
 ### JSON output

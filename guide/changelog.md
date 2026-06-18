@@ -120,6 +120,8 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | list-tests --name | `agr list-tests --name "fix"` filters the discovery output by name substring (case-insensitive); combinable with `--tags`, `--count`, and `--json` to build targeted scripting pipelines |
 | validate --json | `agr validate fix-greeting --json` outputs a JSON object with `passed`, `passedCount`, `totalCount`, and `results[]` (per-test-case `ok`, `name`, `path`, `checks[]`); suppresses per-check console output; works with `--suite` and `--strict` |
 | run --repeat --json | `agr run hello-world --repeat 5 --json` outputs a summary JSON object with `passedRuns`, `totalRuns`, `solveRate`, `totalCostUsd`, `avgCostUsd`, `avgDurationMs`, and per-run `runs[]`; previously `--json` was silently ignored when combined with `--repeat` |
+| run/bench --step-timeout | `agr run <name> --step-timeout 30000` and `agr bench --suite tasks/ --step-timeout 30000` override `step_timeout_ms` from the agent config for this run without editing YAML; useful in CI to cap per-LLM-call latency and abort stuck provider requests faster than the default 120s |
+| validate --name | `agr validate --suite tasks/ --name "python"` filters test cases by name substring (case-insensitive) before validating; mirrors `agr bench --name` and `agr list-tests --name`; applied after `--tags` |
 
 **Earlier additions** (1.5.x):
 
