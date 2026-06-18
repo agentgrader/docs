@@ -71,6 +71,8 @@ This writes `.github/workflows/agr.yml`, a minimal GitHub Actions workflow that 
 | `--blank` | `false` | Only write `agent.yaml` and an empty `tasks/` directory, without the `hello-world` sample test case. |
 | `--ci` | `false` | Also write `.github/workflows/agr.yml`, a GitHub Actions CI workflow that runs `agr bench --suite tasks/ --fail-on-failure` on push and pull_request. Skipped if the file already exists. |
 | `--example <lang>` | `js` | Sample test case language for the scaffolded hello-world. `js` (default) uses Node's built-in test runner. `python` (or `py`) uses `pytest -x` and scaffolds `math.py` and `test_math.py` instead. Requires `pytest` in the sandbox Docker image. |
+| `--model <model>` | `claude-haiku-4-5-20251001` | Model to write into the scaffolded `agent.yaml`. Use to start a project for a non-default model without editing the YAML afterward. |
+| `--provider <provider>` | `anthropic` | Provider to write into the scaffolded `agent.yaml`. Combine with `--model` to scaffold for a different provider (e.g. `agr init --model gpt-4o --provider openai`). |
 
 ### Examples
 
