@@ -122,6 +122,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | run --repeat --json | `agr run hello-world --repeat 5 --json` outputs a summary JSON object with `passedRuns`, `totalRuns`, `solveRate`, `totalCostUsd`, `avgCostUsd`, `avgDurationMs`, and per-run `runs[]`; previously `--json` was silently ignored when combined with `--repeat` |
 | run/bench --step-timeout | `agr run <name> --step-timeout 30000` and `agr bench --suite tasks/ --step-timeout 30000` override `step_timeout_ms` from the agent config for this run without editing YAML; useful in CI to cap per-LLM-call latency and abort stuck provider requests faster than the default 120s |
 | validate --name | `agr validate --suite tasks/ --name "python"` filters test cases by name substring (case-insensitive) before validating; mirrors `agr bench --name` and `agr list-tests --name`; applied after `--tags` |
+| run --save-baseline | `agr run hello-world --save-baseline baselines/main.json` captures a single run's result as a baseline JSON snapshot (same format as `agr bench --save-baseline`) for later comparison with `agr compare-baseline --current`; also works with `--repeat N` to save all N runs as a multi-run snapshot |
 
 **Earlier additions** (1.5.x):
 

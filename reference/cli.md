@@ -178,6 +178,7 @@ Exit codes: `0` once the run completes by default, even when the agent scores `F
 | `--judge-gate` | `false` | Fail the run when the LLM judge score is below `--judge-min-score`. |
 | `--judge-min-score <score>` | `0.7` | Minimum normalized judge score when `--judge-gate` is set. |
 | `--step-timeout <ms>` | (none) | Override `step_timeout_ms` from the agent config for this run only. Sets the per-LLM-call abort timeout in milliseconds. Useful in CI to cap provider latency without editing YAML (default is 120000). |
+| `--save-baseline <path>` | (none) | Write a baseline snapshot JSON after the run completes. Same format as `agr bench --save-baseline`; use `agr compare-baseline --current <path>` to compare. Also works with `--repeat N` to save all N runs as a multi-run snapshot. |
 | `--json` | `false` | Output the run result as a single JSON object and suppress the live Ink UI. Useful for scripting and CI pipelines. |
 
 ### JSON output
@@ -248,6 +249,10 @@ echo "$result" | jq .passed
 
 # Flakiness measurement with JSON output (5 runs)
 agr run hello-world --repeat 5 --json | jq .solveRate
+
+# Save a baseline for later PR comparison
+agr run hello-world --config agent.yaml --save-baseline baselines/main.json
+agr compare-baseline --current baselines/main.json --format md --output comment.md
 ```
 
 ## `agr bench`
