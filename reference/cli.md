@@ -629,6 +629,7 @@ Run IDs come from bench/run output or the `runs` table in `.agr/db.sqlite`. Both
 | `--config <name>` | (none) | With `--last-two`, scope to the two most recent runs for this specific agent config (substring match on `agentConfigId`). |
 | `--full` | `false` | Print full step content without the 200-character truncation used by `agr trace`. |
 | `--only-diff` | `false` | Show only divergent steps, plus one step of context before and after each divergence. |
+| `--json` | `false` | Output the comparison as a single JSON object `{runA, runB, divergentCount, totalSteps, firstDivergence, steps[]}`. Each step has `{index, divergent, a, b}` where `a`/`b` are `{kind, tool, content}` or `null`. |
 
 ### Examples
 
@@ -650,6 +651,9 @@ agr compare --last-two --config agent-a
 
 # Compare the two most recent runs of a specific test case
 agr compare --last-two --test-case hello-world
+
+# Machine-readable divergence check for CI
+agr compare --last-two --json | jq .divergentCount
 ```
 
 ## `agr compare-baseline`
