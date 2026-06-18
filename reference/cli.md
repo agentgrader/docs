@@ -170,6 +170,7 @@ Exit codes: `0` once the run completes by default, even when the agent scores `F
 | `--fail-on-failure` | `false` | Exit with code 1 if the run does not pass. With `--repeat`, exits 1 if any run fails. |
 | `--report <format>` | (none) | Write a report after the run (`json`, `jsonl`, `html`, `md`). |
 | `--output <path>` | (none) | Output path for `--report`. |
+| `--report-dir <dir>` | (none) | Directory for auto-named report files. Generates `run-<timestamp>.<ext>` when `--output` is not given. Useful in CI to always archive reports without hardcoding a filename. |
 | `--report-include-traces` | `false` | Include full step traces in `--report` output. |
 | `--sandbox <provider>` | `docker` | Sandbox provider: `docker` (local Docker) or `e2b` (E2B cloud). See [Custom Sandbox](/advanced/custom-sandbox). |
 | `--llm-judge` | `false` | Run `LlmJudgeScorer` after the agent completes. |
@@ -287,6 +288,7 @@ agr bench --manifest bench.yaml
 | `--min-solve-rate-scope <scope>` | `global` | Apply `--min-solve-rate` globally or per agent config (`global`, `per-config`). |
 | `--report <format>` | (none) | Write a report after the bench (`json`, `jsonl`, `html`, `md`). |
 | `--output <path>` | (none) | Output path for `--report`. |
+| `--report-dir <dir>` | (none) | Directory for auto-named report files. Generates `bench-<timestamp>.<ext>` when `--output` is not given. Useful in CI to always archive reports without hardcoding a filename. |
 | `--report-include-traces` | `false` | Include full step traces in `--report` output. |
 | `--save-baseline <path>` | (none) | Write a baseline snapshot JSON after the bench completes. |
 | `--sandbox <provider>` | `docker` | Sandbox provider: `docker` or `e2b`. |
