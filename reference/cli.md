@@ -707,6 +707,7 @@ agr validate-toolkit ./toolkits/jetbrains-tools --strict
 |---|---|---|
 | `<dir>` | Required | Path to the toolkit directory. |
 | `--strict` | `false` | Exit with code 1 on warnings as well as errors. |
+| `--json` | `false` | Output the audit result as a JSON object `{dir, passed, findings[]}` with `{file, severity, rule, message}` per finding. Exits with code 1 on failure same as human mode. |
 
 `agr bench --strict-toolkits` and `agr validate --audit-toolkits` use the same audit logic across referenced toolkits.
 
