@@ -298,7 +298,7 @@ agr bench --manifest bench.yaml
 | `--llm-judge-model <model>` | (provider default) | Model slug for the LLM judge. |
 | `--judge-gate` | `false` | Fail runs when the LLM judge score is below `--judge-min-score`. |
 | `--judge-min-score <score>` | `0.7` | Minimum normalized judge score when `--judge-gate` is set. |
-| `--dry-run` | `false` | Print the resolved test case x config matrix and exit without starting any runs. Tags (if any) are shown inline per test case. |
+| `--dry-run` | `false` | Print the resolved test case x config matrix and exit without starting any runs. Tags (if any) are shown inline per test case. Combine with `--json` to emit `{testCases, agentConfigs, totalRuns, concurrency}` for scripting. |
 | `--tags <tags>` | (none) | Comma-separated list of tags; only test cases whose `tags:` list matches at least one are included. Requires `--suite`. |
 | `--skip-tags <tags>` | (none) | Comma-separated list of tags; test cases with any of these tags are excluded. Applied after `--tags`. Requires `--suite`. |
 | `--limit <n>` | (none) | Run only the first N test cases after filtering. Useful for quick smoke tests on large suites without running the full set. |
