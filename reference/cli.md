@@ -545,6 +545,7 @@ agr trace --last
 | `--tools` | `false` | Show only a tool-usage breakdown: how many times each tool name appears across the run's `tool_call` steps, sorted by call count. |
 | `--json` | `false` | Output as a JSON object. Default mode emits `{run, steps[]}` (each step has `stepIndex`, `kind`, `tool`, `content`, `tokensIn`, `tokensOut`, `cachedTokens`, `costUsd`). With `--quality` emits `{run, metrics}`. With `--tools` emits `{run, toolUsage}`. |
 | `--steps <range>` | (all) | Show only the specified stepIndex range. Format: `40-60` (inclusive) or `42` (single step). The header shows `N step(s) [40-60] of 127 total` to preserve context. Combinable with `--last`, `--json`, and all run-selection flags. |
+| `--grep <pattern>` | (none) | Show only steps whose label (`kind:tool`) or content contains this substring (case-insensitive). The header shows `N matching step(s) for "error" of 127 total`. Combinable with `--steps` (range is applied first, then grep). |
 
 ### Examples
 
@@ -575,6 +576,12 @@ agr trace 3f1c2e2a-8b4d-4e1f-9c3a-1a2b3c4d5e6f --tools
 
 # Jump to a specific step range in a long trace
 agr trace 3f1c2e2a-8b4d-4e1f-9c3a-1a2b3c4d5e6f --steps 80-100
+
+# Find all steps mentioning "error"
+agr trace --last --grep error
+
+# Find all steps calling a specific tool
+agr trace --last --grep tool_view_structure
 ```
 
 `--tools` is especially useful for checking whether a custom toolkit, MCP server, or Agent Skill was actually used by the agent versus only made available to it. For example, if you wire in a custom toolkit but its tools show a count of `0`, the agent saw the tool but chose not to call it, which may be a sign the system prompt needs to nudge it more explicitly.
