@@ -919,6 +919,7 @@ Output includes:
 | `--test-case <name>` | (none) | Restrict stats to runs for this specific test case (substring match). Shows solve rate, avg cost, and avg duration for that task. |
 | `--config <name>` | (none) | Restrict stats to runs for this specific agent config (substring match). Useful for comparing performance between two configs. |
 | `--model <substring>` | (none) | Restrict stats to runs where the agent model contains this substring (case-insensitive). Useful for comparing aggregate performance across model versions (e.g. `--model haiku` vs `--model opus`). Combinable with `--by-config` and `--by-test-case`. |
+| `--sandbox <provider>` | (none) | Restrict stats to runs with a matching sandbox provider (substring match, case-insensitive). E.g. `--sandbox e2b`. Complements `--by-sandbox` and is combinable with `--model`, `--by-config`, `--by-model`, and other filters. |
 | `--passed` | `false` | Restrict stats to runs that passed. Mutually exclusive with `--failed`. |
 | `--failed` | `false` | Restrict stats to runs that failed. Mutually exclusive with `--passed`. |
 | `--by-config` | `false` | Show a per-config breakdown: solve rate, avg cost, avg duration, and avg tokens per agent config, sorted by solve rate. Combinable with `--since` and `--test-case` to scope the data. |
