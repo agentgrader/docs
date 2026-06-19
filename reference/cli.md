@@ -746,6 +746,7 @@ Export run metadata or step traces from `.agr/db.sqlite` for downstream analytic
 ```bash
 agr export runs --format jsonl --output runs.jsonl
 agr export runs --format csv --output runs.csv
+agr export runs --model haiku --sort cost --output haiku-by-cost.jsonl
 agr export traces --run-id <runId> --format otlp --output trace.json
 agr export traces --test-case hello-world --format jsonl --output hello-traces.jsonl
 agr export traces --last --test-case hello-world --format otlp --output last-hello.json
@@ -775,6 +776,8 @@ agr export traces --last --test-case hello-world --format otlp --output last-hel
 | `--config <id>` | (none) | Filter by `agentConfigId` (substring match). Works for both `runs` and `traces`. |
 | `--passed` | `false` | Export only runs that passed. Mutually exclusive with `--failed`. Works for both `runs` and multi-run `traces`. |
 | `--failed` | `false` | Export only runs that failed. Mutually exclusive with `--passed`. Works for both `runs` and multi-run `traces`. |
+| `--model <name>` | (none) | (`export runs` only) Filter to runs whose agent config model matches the substring (case-insensitive). E.g. `--model haiku`. |
+| `--sort <field>` | `date` | (`export runs` only) Sort exported rows by `date` (newest first, default), `cost`, `duration`, or `steps` (all descending). Applied before `--limit`. |
 
 **Multi-run trace export:** when `--test-case` or `--config` is given without `--run-id` or `--last`, `export traces` fetches traces for every matching run. JSON output is an array of `{ runId, testCaseId, agentConfigId, passed, resourceSpans }` objects; JSONL output is one OTel JSON per line.
 
