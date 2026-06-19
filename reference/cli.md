@@ -320,6 +320,7 @@ agr bench --manifest bench.yaml
 | `--repeat <n>` | `1` | Run each test case N times per config. The result summary shows solve rate across all trials (e.g. `--repeat 5` on 3 test cases = 15 runs per config). Useful for pass@k metrics and detecting flaky tests. |
 | `--max-steps <n>` | (none) | Override `max_steps` for all agent configs in this bench run. Combine with `--limit` for fast, cheap smoke tests: `--limit 3 --max-steps 5`. |
 | `--name <substring>` | (none) | Filter test cases by name substring (case-insensitive). Applied after `--tags` and `--skip-tags`. Requires `--suite`. |
+| `--config-filter <name>` | (none) | Filter loaded agent configs by name substring (case-insensitive). Applied after loading from `--configs-dir` or `--manifest`. Useful for running a subset of a config directory without editing files (e.g. `--configs-dir ./agents --config-filter fast`). |
 | `--step-timeout <ms>` | (none) | Override `step_timeout_ms` for all agent configs in this bench run. Sets the per-LLM-call abort timeout in milliseconds. Useful in CI to cap provider latency without editing YAML (default is 120000). |
 | `--json` | `false` | Output bench results as a single JSON object and suppress the live dashboard. Useful for scripting and CI pipelines. |
 

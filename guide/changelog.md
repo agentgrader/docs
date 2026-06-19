@@ -142,6 +142,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | status --by-model | `agr status --by-model` shows a per-model breakdown (solve rate, avg cost, avg duration, avg tokens) sorted by solve rate; ideal for comparing haiku vs opus vs sonnet across all runs; combinable with `--since`, `--test-case`, `--config`, `--top`, and `--json` |
 | status --by-sandbox | `agr status --by-sandbox` shows a per-sandbox breakdown (solve rate, avg cost, avg duration) sorted by solve rate; useful for validating that docker vs e2b results are consistent; combinable with `--since`, `--test-case`, `--config`, and `--json` |
 | list --all | `agr list --all` loads every run from the database ignoring the default 100-run cap; combinable with `--plain`, `--json`, `--sort`, `--model`, and all other filters; useful for full-history exports (`agr list --all --json | jq length`) |
+| bench --config-filter | `agr bench --suite tasks/ --configs-dir ./agents --config-filter fast` filters loaded configs by name substring after loading from `--configs-dir` or `--manifest`; useful for running a subset without editing files or listing paths; prints "N of M matched" when filter reduces the set |
 
 **Earlier additions** (1.5.x):
 
