@@ -951,6 +951,8 @@ agr status --model haiku              # stats scoped to haiku runs only
 agr status --by-config                # per-config breakdown sorted by solve rate
 agr status --by-config --test-case hello-world  # per-config for one task
 agr status --by-test-case             # per-task breakdown, hardest first
+agr status --since 24h --trend        # compare last 24h vs previous 24h
+agr status --since 7d --trend --test-case hello-world  # trend for one task
 ```
 
 Output includes:
@@ -982,5 +984,8 @@ Output includes:
 | `--top <n>` | (none) | With `--by-config`, `--by-test-case`, `--by-model`, `--by-sandbox`, or `--by-matrix`, show only the first N entries. |
 | `--matrix-id <id>` | (none) | Restrict stats to runs belonging to a specific bench matrix sweep (exact `matrixId` match). Combinable with all breakdown flags. |
 | `--last-matrix` | `false` | Restrict stats to runs from the most recent bench matrix sweep. Useful for inspecting the results of the last `agr bench --matrix` without filtering by date. |
+| `--trend` | `false` | Compare the `--since` window to the equal-length window before it. Requires `--since`. Shows solve-rate delta (pp), run count delta, and avg cost delta with directional arrows. |
 
 The `--json` output contains: `exists`, `dbPath`, `since`, `testCase`, `config`, `model`, `passed`, `totalRuns`, `passedRuns`, `failedRuns`, `erroredRuns`, `solveRate`, `uniqueTestCases`, `uniqueConfigs`, `matrixRuns`, `totalCostUsd`, `avgCostUsd`, `avgDurationMs`, `totalTokensIn`, `totalTokensOut`, `lastRunAt`, `lastRunTestCaseId`, `lastRunAgentConfigId`. With `--by-config`, instead emits `{ exists, dbPath, since, testCase, byConfig: [{configId, total, passed, failed, solveRate, avgCostUsd, avgDurationMs, avgTokensIn, avgTokensOut}] }`.
+
+With `--trend --json`, emits `{ exists, dbPath, trend: { window, current: {total, passed, solveRate, avgCostUsd}, previous: {total, passed, solveRate, avgCostUsd}, delta: {runs, solveRatePp, avgCostUsd} } }`.

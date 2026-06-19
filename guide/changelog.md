@@ -59,6 +59,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | run trace-id hint | `agr run` next/inspect hint now uses the actual run ID (`agr trace <runId>`) instead of `--last`, so the reference stays stable after subsequent runs |
 | toolkit-list next hints | `agr toolkit-list` now prints a `Next:` hint in the base case and a fix-and-rerun or proceed hint after `--check-config`, completing the toolkit audit workflow |
 | toolkit-list --json | `agr toolkit-list --json` outputs `{toolkitDir, tools[], auditFindings[], ok}` for CI gating; with `--check-config --json` adds `untracked[]`, `trackedButMissing[]`; pipe to `jq .ok` for pass/fail |
+| status --trend | `agr status --since <window> --trend` compares current window vs previous equal-length window: shows solve-rate delta (pp), run count delta, avg cost delta with `up/down` arrows; `--json` emits `{current, previous, delta}`; combinable with `--test-case`, `--config`, `--sandbox` |
 | bench avg cost per run | `agr bench` result summary now shows `avg: $X.XXXX/run` when running multiple test cases; multi-config breakdown also shows per-config avg |
 | bench avg duration per run | `agr bench` result now shows `avg: Xs/run` alongside avg cost; multi-config breakdown shows per-config avg duration for speed vs cost comparisons |
 | report steps column | `agr bench --report` HTML and Markdown reports now include a `Steps` column alongside cost and duration |
