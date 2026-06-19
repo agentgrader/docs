@@ -314,6 +314,7 @@ agr bench --manifest bench.yaml
 | `--limit <n>` | (none) | Run only the first N test cases after filtering. Useful for quick smoke tests on large suites without running the full set. |
 | `--only-failed` | `false` | Run only the test cases that failed on their most recent run in the DB. Useful for tight fix-and-retry loops: bench the full suite once, fix failing cases, then re-run only those with `--only-failed`. Exits cleanly if all previously-failed cases have since passed. |
 | `--shuffle` | `false` | Randomize the order of test cases before running. Reduces order-dependent bias in large suites and helps surface flaky tests that only fail when run after certain other tests. |
+| `--sample <n>` | (all) | Randomly select N test cases from the suite without replacement and run only those. Prints the selected names so the draw is visible. Combinable with `--suite`, `--tags`, `--config`, and all other bench flags. Useful for quick sanity checks on large suites without running everything. |
 | `--model <model>` | (none) | Override the model for all agent configs in this bench run (e.g. `claude-opus-4-8`). Useful for quick model comparisons without editing YAML or creating a new agent config file. |
 | `--provider <provider>` | (none) | Override the provider for all agent configs in this bench run (e.g. `anthropic`, `openai`, `openrouter`). Combine with `--model` to switch provider and model without editing YAML. |
 | `--temperature <n>` | (none) | Override the temperature for all agent configs in this bench run (0.0-1.0). Use `--temperature 0` for deterministic reproducibility experiments. |
@@ -381,6 +382,9 @@ agr bench --suite tasks/ --config agent.yaml --tags python,fast
 # Machine-readable output for scripting
 result=$(agr bench --suite tasks/ --config agent.yaml --json)
 echo "$result" | jq .solveRate
+
+# Quick sanity check: randomly sample 5 tasks from a large suite
+agr bench --suite tasks/ --config agent.yaml --sample 5
 ```
 
 ### JSON output
