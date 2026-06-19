@@ -910,6 +910,7 @@ Output includes:
 | `--failed` | `false` | Restrict stats to runs that failed. Mutually exclusive with `--passed`. |
 | `--by-config` | `false` | Show a per-config breakdown: solve rate, avg cost, avg duration, and avg tokens per agent config, sorted by solve rate. Combinable with `--since` and `--test-case` to scope the data. |
 | `--by-test-case` | `false` | Show a per-test-case breakdown: solve rate, avg cost, avg duration, sorted by solve rate ascending (hardest first). Combinable with `--since` and `--config` to scope the data. |
-| `--top <n>` | (none) | With `--by-config` or `--by-test-case`, show only the first N entries. |
+| `--by-model` | `false` | Show a per-model breakdown: solve rate, avg cost, avg duration, and avg tokens per distinct model string, sorted by solve rate. Useful for comparing haiku vs opus vs sonnet across all runs. Combinable with `--since`, `--test-case`, and `--config`. |
+| `--top <n>` | (none) | With `--by-config`, `--by-test-case`, or `--by-model`, show only the first N entries. |
 
 The `--json` output contains: `exists`, `dbPath`, `since`, `testCase`, `config`, `model`, `passed`, `totalRuns`, `passedRuns`, `failedRuns`, `erroredRuns`, `solveRate`, `uniqueTestCases`, `uniqueConfigs`, `matrixRuns`, `totalCostUsd`, `avgCostUsd`, `avgDurationMs`, `totalTokensIn`, `totalTokensOut`, `lastRunAt`, `lastRunTestCaseId`, `lastRunAgentConfigId`. With `--by-config`, instead emits `{ exists, dbPath, since, testCase, byConfig: [{configId, total, passed, failed, solveRate, avgCostUsd, avgDurationMs, avgTokensIn, avgTokensOut}] }`.
