@@ -592,6 +592,8 @@ agr list
 | `--failed` | `false` | Only show runs that failed. Mutually exclusive with `--passed`. |
 | `--model <substring>` | (none) | Only show runs where the agent model contains this substring (case-insensitive). Useful for comparing run histories across model versions (e.g. `--model haiku`). |
 | `--sort <field>` | `date` | Sort runs by `date` (newest first, default), `cost` (highest first), `duration` (longest first), or `steps` (most steps first). Applied after all filters and `--limit`. |
+| `--matrix-id <id>` | (none) | Only show runs belonging to a specific bench matrix sweep (exact match on `matrixId`). |
+| `--last-matrix` | `false` | Only show runs from the most recent bench matrix sweep. Automatically resolves the most recent `matrixId` in the database. Combinable with `--plain`, `--json`, and `--sort`. |
 | `--json` | `false` | Output runs as a JSON array and suppress plain-text and TUI output. Each element includes `id`, `testCaseId`, `testCaseName`, `agentConfigId`, `agentConfigName`, `agentModel`, `passed`, `costUsd`, `durationMs`, `stepsCount`, `tokensIn`, `tokensOut`, `error`, `matrixId`, `createdAt`, `completedAt`. Combinable with all filters. |
 
 ### Examples

@@ -144,6 +144,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | list --all | `agr list --all` loads every run from the database ignoring the default 100-run cap; combinable with `--plain`, `--json`, `--sort`, `--model`, and all other filters; useful for full-history exports (`agr list --all --json | jq length`) |
 | bench --config-filter | `agr bench --suite tasks/ --configs-dir ./agents --config-filter fast` filters loaded configs by name substring after loading from `--configs-dir` or `--manifest`; useful for running a subset without editing files or listing paths; prints "N of M matched" when filter reduces the set |
 | export --model --sort | `agr export runs --model haiku --sort cost` filters exported runs by model substring and sorts rows by cost, duration, or steps (descending) before applying `--limit`; mirrors the `--model` / `--sort` flags on `agr list` |
+| list --matrix-id --last-matrix | `agr list --last-matrix --plain` scopes the run browser to a single bench matrix sweep; `--matrix-id <id>` pins to a specific sweep; mirrors the same flags on `agr export runs` so you can inspect a sweep interactively without exporting first |
 
 **Earlier additions** (1.5.x):
 
