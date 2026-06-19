@@ -812,6 +812,8 @@ agr export traces --last --test-case hello-world --format otlp --output last-hel
 | `--failed` | `false` | Export only runs that failed. Mutually exclusive with `--passed`. Works for both `runs` and multi-run `traces`. |
 | `--model <name>` | (none) | (`export runs` only) Filter to runs whose agent config model matches the substring (case-insensitive). E.g. `--model haiku`. |
 | `--sort <field>` | `date` | (`export runs` only) Sort exported rows by `date` (newest first, default), `cost`, `duration`, or `steps` (all descending). Applied before `--limit`. |
+| `--sandbox <provider>` | (none) | (`export runs` only) Filter to runs with a matching sandbox provider substring (case-insensitive). E.g. `--sandbox e2b`. |
+| `--error <substring>` | (none) | (`export runs` only) Filter to runs whose error message contains this substring (case-insensitive). E.g. `--error timeout`. |
 
 **Multi-run trace export:** when `--test-case` or `--config` is given without `--run-id` or `--last`, `export traces` fetches traces for every matching run. JSON output is an array of `{ runId, testCaseId, agentConfigId, passed, resourceSpans }` objects; JSONL output is one OTel JSON per line.
 

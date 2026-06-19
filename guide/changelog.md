@@ -150,6 +150,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | list --error | `agr list --error timeout` filters runs whose error message contains the given substring; useful for grouping and counting runs by failure type without manual grep |
 | status --sandbox | `agr status --sandbox e2b --by-model` restricts all stats to a specific sandbox provider; complements `--by-sandbox` breakdown and is combinable with `--model`, `--matrix-id`, and other filters |
 | agr count | `agr count --failed --since 24h` prints a plain integer count of matching runs; supports the same filters as `agr list`; `--json` emits `{total, passed, failed, dbPath}`; useful for CI gates and shell conditions |
+| export --sandbox --error | `agr export runs --sandbox e2b --error timeout` completes filter parity with `agr list`; both flags accept case-insensitive substrings and print a matching-count line before writing the file |
 
 **Earlier additions** (1.5.x):
 
