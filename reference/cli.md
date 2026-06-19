@@ -961,7 +961,8 @@ Output includes:
 | `--by-test-case` | `false` | Show a per-test-case breakdown: solve rate, avg cost, avg duration, sorted by solve rate ascending (hardest first). Combinable with `--since` and `--config` to scope the data. |
 | `--by-model` | `false` | Show a per-model breakdown: solve rate, avg cost, avg duration, and avg tokens per distinct model string, sorted by solve rate. Useful for comparing haiku vs opus vs sonnet across all runs. Combinable with `--since`, `--test-case`, and `--config`. |
 | `--by-sandbox` | `false` | Show a per-sandbox breakdown: solve rate, avg cost, and avg duration per sandbox provider (e.g. `docker`, `e2b`), sorted by solve rate. Useful for validating that performance is consistent across sandbox environments. |
-| `--top <n>` | (none) | With `--by-config`, `--by-test-case`, `--by-model`, or `--by-sandbox`, show only the first N entries. |
+| `--by-matrix` | `false` | Show a per-matrix-sweep breakdown: total runs, solve rate, avg cost, and avg duration per `matrixId`, sorted newest-first. Useful for tracking solve rate trends across multiple `agr bench --matrix` runs. |
+| `--top <n>` | (none) | With `--by-config`, `--by-test-case`, `--by-model`, `--by-sandbox`, or `--by-matrix`, show only the first N entries. |
 | `--matrix-id <id>` | (none) | Restrict stats to runs belonging to a specific bench matrix sweep (exact `matrixId` match). Combinable with all breakdown flags. |
 | `--last-matrix` | `false` | Restrict stats to runs from the most recent bench matrix sweep. Useful for inspecting the results of the last `agr bench --matrix` without filtering by date. |
 

@@ -152,6 +152,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | agr count | `agr count --failed --since 24h` prints a plain integer count of matching runs; supports the same filters as `agr list`; `--json` emits `{total, passed, failed, dbPath}`; useful for CI gates and shell conditions |
 | export --sandbox --error | `agr export runs --sandbox e2b --error timeout` completes filter parity with `agr list`; both flags accept case-insensitive substrings and print a matching-count line before writing the file |
 | trace --model --passed --failed | `agr trace --last --model haiku --failed` scopes `--last` to the most recent run matching model + outcome; all three new flags combine with existing `--test-case` and `--config` |
+| status --by-matrix | `agr status --by-matrix` shows a per-sweep breakdown sorted newest-first (total, solve rate, avg cost); useful for tracking how solve rate evolves across successive bench runs; combinable with `--top` and all filter flags |
 
 **Earlier additions** (1.5.x):
 
