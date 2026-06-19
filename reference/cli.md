@@ -582,6 +582,7 @@ agr list
 | `--config <name>` | (none) | Only show runs for this specific agent config (substring match on `agentConfigId`). Applied before `--limit`. |
 | `--passed` | `false` | Only show runs that passed. Mutually exclusive with `--failed`. |
 | `--failed` | `false` | Only show runs that failed. Mutually exclusive with `--passed`. |
+| `--model <substring>` | (none) | Only show runs where the agent model contains this substring (case-insensitive). Useful for comparing run histories across model versions (e.g. `--model haiku`). |
 | `--json` | `false` | Output runs as a JSON array and suppress plain-text and TUI output. Each element includes `id`, `testCaseId`, `testCaseName`, `agentConfigId`, `agentConfigName`, `agentModel`, `passed`, `costUsd`, `durationMs`, `stepsCount`, `tokensIn`, `tokensOut`, `error`, `matrixId`, `createdAt`, `completedAt`. Combinable with all filters. |
 
 ### Examples
