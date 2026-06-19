@@ -849,6 +849,8 @@ List every `bin/` tool in a toolkit directory alongside its SKILL.md description
 ```bash
 agr toolkit-list ./toolkits/jetbrains-tools
 agr toolkit-list ./toolkits/jetbrains-tools --check-config matrix-jetbrains-toolkits.yaml
+agr toolkit-list ./toolkits/jetbrains-tools --json
+agr toolkit-list ./toolkits/jetbrains-tools --check-config agent.yaml --json | jq .ok
 ```
 
 ### Options
@@ -857,8 +859,23 @@ agr toolkit-list ./toolkits/jetbrains-tools --check-config matrix-jetbrains-tool
 |---|---|---|
 | `<dir>` | Required | Path to the toolkit directory (must contain `bin/`). |
 | `--check-config <file>` | (none) | Diff the toolkit's `bin/` tools against an agent config's `track_tools` and `require_tools_before_submit` lists. Reports tools that are present in `bin/` but not tracked, and tracked names that are missing from `bin/`. |
+| `--json` | (off) | Output as a JSON object for CI scripting; `ok` is `true` when no audit findings and no tracking gaps (with `--check-config`). |
 
 The `--check-config` flag accepts both agent config YAMLs (top-level `track_tools`) and matrix YAMLs (`base.track_tools`). This catches the common drift where a new toolkit tool is added to `bin/` but forgotten in one or more agent configs.
+
+With `--json`, the output shape is:
+
+```json
+{
+  "toolkitDir": "./toolkits/jetbrains-tools",
+  "tools": [{ "name": "run-tests", "description": "...", "hasSkill": true }],
+  "auditFindings": [],
+  "ok": true,
+  "summary": { "total": 8, "withSkill": 8 }
+}
+```
+
+With `--check-config --json`, also includes `checkConfig`, `untracked[]`, `trackedButMissing[]`, and `summary.untrackedCount`.
 
 ## `agr doctor`
 
