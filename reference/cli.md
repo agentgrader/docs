@@ -569,6 +569,36 @@ agr trace 3f1c2e2a-8b4d-4e1f-9c3a-1a2b3c4d5e6f --tools
 
 `--tools` is especially useful for checking whether a custom toolkit, MCP server, or Agent Skill was actually used by the agent versus only made available to it. For example, if you wire in a custom toolkit but its tools show a count of `0`, the agent saw the tool but chose not to call it, which may be a sign the system prompt needs to nudge it more explicitly.
 
+## `agr count`
+
+Print the number of runs matching the given filters as a plain integer. Useful for CI badges, shell conditions, and quick sanity checks without launching the TUI or loading full run details.
+
+```bash
+agr count
+agr count --passed --since 24h
+agr count --failed --test-case hello-world
+agr count --last-matrix --json
+agr count --model haiku --since 7d
+```
+
+### Options
+
+| Flag | Default | Description |
+|---|---|---|
+| `--db <path>` | `.agr/db.sqlite` | SQLite database to read. |
+| `--since <duration\|date>` | (none) | Only count runs after this point. Accepts relative durations or ISO timestamps. |
+| `--test-case <name>` | (none) | Only count runs for this specific test case (substring match). |
+| `--config <name>` | (none) | Only count runs for this specific agent config (substring match). |
+| `--model <substring>` | (none) | Only count runs where the agent model contains this substring (case-insensitive). |
+| `--sandbox <provider>` | (none) | Only count runs with this sandbox provider (substring match). |
+| `--passed` | `false` | Only count runs that passed. Mutually exclusive with `--failed`. |
+| `--failed` | `false` | Only count runs that failed. Mutually exclusive with `--passed`. |
+| `--matrix-id <id>` | (none) | Only count runs belonging to a specific bench matrix sweep. |
+| `--last-matrix` | `false` | Only count runs from the most recent bench matrix sweep. |
+| `--json` | `false` | Output as a JSON object `{total, passed, failed, dbPath}` instead of a plain number. |
+
+Without `--passed` or `--failed`, `--json` mode still reports both `passed` and `failed` counts alongside `total`.
+
 ## `agr list`
 
 Browse saved runs from `.agr/db.sqlite` in an interactive terminal UI: a scrollable run list, a detail view (run metadata, agent diff, trace preview), and a side-by-side diff compare between any two runs.
