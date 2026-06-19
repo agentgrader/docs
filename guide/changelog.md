@@ -141,6 +141,7 @@ If you are upgrading from 1.5.x, these flags and commands are new in 1.6.0:
 | run --dry-run | `agr run <name> --dry-run` prints the resolved test case, agent config, model, provider, sandbox, and any override flags without executing the run; combine with `--json` to emit a machine-readable object; mirrors `agr bench --dry-run` for single-run inspection and config validation |
 | status --by-model | `agr status --by-model` shows a per-model breakdown (solve rate, avg cost, avg duration, avg tokens) sorted by solve rate; ideal for comparing haiku vs opus vs sonnet across all runs; combinable with `--since`, `--test-case`, `--config`, `--top`, and `--json` |
 | status --by-sandbox | `agr status --by-sandbox` shows a per-sandbox breakdown (solve rate, avg cost, avg duration) sorted by solve rate; useful for validating that docker vs e2b results are consistent; combinable with `--since`, `--test-case`, `--config`, and `--json` |
+| list --all | `agr list --all` loads every run from the database ignoring the default 100-run cap; combinable with `--plain`, `--json`, `--sort`, `--model`, and all other filters; useful for full-history exports (`agr list --all --json | jq length`) |
 
 **Earlier additions** (1.5.x):
 

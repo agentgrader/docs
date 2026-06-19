@@ -582,6 +582,7 @@ agr list
 |---|---|---|
 | `--db <path>` | `.agr/db.sqlite` | Path to the SQLite database to read. |
 | `--limit <n>` | `100` | Maximum number of most-recent runs to load. |
+| `--all` | `false` | Load all runs from the database, ignoring `--limit`. Useful with `--plain`, `--json`, and `--sort` when you need the full history. |
 | `--plain` | `false` | Print a plain text list instead of the interactive UI. Used automatically when stdout is not a TTY. |
 | `--since <duration\|date>` | (none) | Only show runs after this point. Accepts relative durations (`1h`, `24h`, `7d`) or ISO timestamps. Applied before `--limit`. |
 | `--test-case <name>` | (none) | Only show runs for this specific test case (substring match on `testCaseId`). Applied before `--limit`. |
@@ -600,6 +601,9 @@ agr list
 
 # Print a plain text summary of the 20 most recent runs
 agr list --limit 20 --plain
+
+# Show all runs (no 100-run cap)
+agr list --all --plain
 
 # Show only runs from the last 24 hours
 agr list --plain --since 24h
@@ -626,6 +630,7 @@ agr list --json | jq '.[].testCaseId'
 agr list --json --failed | jq 'length'
 agr list --json --since 24h | jq '[.[] | {id, testCaseId, passed, costUsd}]'
 agr list --json --sort cost | jq '.[0:5] | [.[] | {id, testCaseId, costUsd}]'
+agr list --all --json | jq length
 ```
 
 In the interactive UI, use the arrow keys (or `j`/`k`) to move through the run list, `Enter` to open a run's detail view (agent diff plus a trace preview), `c` to start a diff comparison between two runs, `b`/`Esc` to go back, and `q` to quit.
