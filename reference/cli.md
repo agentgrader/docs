@@ -982,6 +982,8 @@ agr status --since 7d --by-day        # daily breakdown for the past week
 agr status --since 30d --by-day --top 7  # last 7 days of a 30-day window
 agr status --errors                   # deduplicated error breakdown across all errored runs
 agr status --errors --since 24h       # same, scoped to last 24 hours
+agr status --flaky                    # test cases with inconsistent pass/fail, closest to 50/50 first
+agr status --flaky --since 7d         # flaky detection over the last week only
 ```
 
 Output includes:
@@ -1017,6 +1019,7 @@ Output includes:
 | `--by-day` | `false` | Show a per-day breakdown: runs, solve rate, and total cost per calendar day (UTC), sorted oldest-first. Combinable with `--since`, `--top`, and all filter flags. |
 | `--sort-by <field>` | `solve-rate` | Sort `--by-test-case`, `--by-config`, and `--by-model` breakdowns. Values: `solve-rate` (default), `cost` (avg cost/run, most expensive first), `runs` (most runs first). |
 | `--errors` | `false` | Show a deduplicated list of error messages from errored/failed runs, sorted by frequency. Each entry shows count, affected test cases, and an `agr trace <runId>` link. Combinable with `--since`, `--test-case`, `--config`, and all filter flags. `--json` emits `{errors: [{message, count, exampleRunId, testCaseIds}]}`. |
+| `--flaky` | `false` | Show test cases that have both passes and failures in the matching run history, sorted closest-to-50/50 first. Combinable with `--since`, `--config`, `--model`, `--top`, and all filter flags. `--json` emits `{flaky: [{testCaseId, total, passed, failed, solveRate, avgCostUsd, variance}]}`. |
 
 The `--json` output contains: `exists`, `dbPath`, `since`, `testCase`, `config`, `model`, `passed`, `totalRuns`, `passedRuns`, `failedRuns`, `erroredRuns`, `solveRate`, `uniqueTestCases`, `uniqueConfigs`, `matrixRuns`, `totalCostUsd`, `avgCostUsd`, `avgDurationMs`, `totalTokensIn`, `totalTokensOut`, `lastRunAt`, `lastRunTestCaseId`, `lastRunAgentConfigId`. With `--by-config`, instead emits `{ exists, dbPath, since, testCase, byConfig: [{configId, total, passed, failed, solveRate, avgCostUsd, avgDurationMs, avgTokensIn, avgTokensOut}] }`.
 
