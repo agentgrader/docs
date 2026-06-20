@@ -1000,6 +1000,7 @@ agr status --flaky                    # test cases with inconsistent pass/fail, 
 agr status --flaky --since 7d         # flaky detection over the last week only
 agr status --by-test-case --below 100 # show test cases with at least one failure
 agr status --by-config --below 50     # show configs failing more than half the time
+agr status --grid                     # cross-tab PASS/FAIL matrix (test cases x configs)
 agr status --percentiles              # adds p50/p95 cost and duration to the output
 agr status --since 7d --percentiles --json  # machine-readable with percentiles
 ```
@@ -1040,6 +1041,7 @@ Output includes:
 | `--flaky` | `false` | Show test cases that have both passes and failures in the matching run history, sorted closest-to-50/50 first. Combinable with `--since`, `--config`, `--model`, `--top`, and all filter flags. `--json` emits `{flaky: [{testCaseId, total, passed, failed, solveRate, avgCostUsd, variance}]}`. |
 | `--percentiles` | `false` | Add p50 and p95 percentile stats for cost and duration to the base status output. With `--json`, adds `p50CostUsd`, `p95CostUsd`, `p50DurationMs`, `p95DurationMs` to the response. Useful for spotting expensive outlier runs that skew the average. |
 | `--below <n>` | (none) | With `--by-test-case`, `--by-config`, or `--by-model`: only show entries with solve rate strictly below n% (0-100). `--below 100` shows anything with at least one failure; `--below 50` shows entries failing more than half the time. Combinable with `--top`, `--sort-by`, `--since`, and all filter flags. |
+| `--grid` | `false` | Show a cross-tab matrix: rows are test cases, columns are agent configs, each cell shows `PASS`, `FAIL`, or `--` (no run) for the latest run of that pair. Combinable with `--since`, `--test-case`, `--config`, and all filter flags. `--json` emits `{testCaseIds, configIds, grid: [{testCaseId, configs: {configId: boolean\|null}}]}`. |
 
 The `--json` output contains: `exists`, `dbPath`, `since`, `testCase`, `config`, `model`, `passed`, `totalRuns`, `passedRuns`, `failedRuns`, `erroredRuns`, `solveRate`, `uniqueTestCases`, `uniqueConfigs`, `matrixRuns`, `totalCostUsd`, `avgCostUsd`, `avgDurationMs`, `totalTokensIn`, `totalTokensOut`, `lastRunAt`, `lastRunTestCaseId`, `lastRunAgentConfigId`. With `--by-config`, instead emits `{ exists, dbPath, since, testCase, byConfig: [{configId, total, passed, failed, solveRate, avgCostUsd, avgDurationMs, avgTokensIn, avgTokensOut}] }`.
 
