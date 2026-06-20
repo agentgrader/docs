@@ -560,6 +560,7 @@ agr trace --last
 | `--grep <pattern>` | (none) | Show only steps whose label (`kind:tool`) or content contains this substring (case-insensitive). The header shows `N matching step(s) for "error" of 127 total`. Combinable with `--steps` (range is applied first, then grep). |
 | `--full` | `false` | Print complete step content without the default 200-character truncation. Combinable with `--steps`, `--grep`, and all run-selection flags. |
 | `--top-cost <n>` | (all) | Show only the N most expensive steps, sorted by cost descending. The header shows `top N most expensive step(s) of M total`. Combinable with `--full`, `--grep`, `--steps`, and all run-selection flags. |
+| `--kind <type>` | (all) | Filter steps to those with an exact `kind` value (e.g. `llm_response`, `tool_call`, `tool_result`). Cleaner than `--grep` when you know the exact step type and don't want false positives from content. Combinable with `--steps`, `--grep`, `--full`, `--top-cost`, and all run-selection flags. |
 
 ### Examples
 
@@ -602,6 +603,12 @@ agr trace --last --full
 
 # Show the 5 most expensive steps in the last run
 agr trace --last --top-cost 5
+
+# Show only LLM response steps
+agr trace --last --kind llm_response
+
+# Show only tool call steps, full content
+agr trace --last --kind tool_call --full
 
 # Combine: full content for steps matching "error"
 agr trace --last --grep error --full
