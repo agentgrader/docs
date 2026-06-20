@@ -632,8 +632,18 @@ agr count --model haiku --since 7d
 | `--matrix-id <id>` | (none) | Only count runs belonging to a specific bench matrix sweep. |
 | `--last-matrix` | `false` | Only count runs from the most recent bench matrix sweep. |
 | `--json` | `false` | Output as a JSON object `{total, passed, failed, dbPath}` instead of a plain number. |
+| `--by-test-case` | `false` | Print a count per test case, sorted by total runs (most first). Plain text: tab-separated `total\ttestCaseId\t(N passed, M failed)`. JSON: `{total, byTestCase: [{testCaseId, total, passed, failed}]}`. |
+| `--by-config` | `false` | Print a count per agent config, sorted by total runs (most first). Same format as `--by-test-case` but keyed by `agentConfigId`. |
 
 Without `--passed` or `--failed`, `--json` mode still reports both `passed` and `failed` counts alongside `total`.
+
+```bash
+# Find test cases with fewer than 3 runs (not enough for statistical significance)
+agr count --by-test-case --json | jq '.byTestCase[] | select(.total < 3) | .testCaseId'
+
+# Per-config run counts over the last week
+agr count --by-config --since 7d
+```
 
 ## `agr list`
 
