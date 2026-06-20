@@ -662,6 +662,7 @@ agr list
 | `--last-matrix` | `false` | Only show runs from the most recent bench matrix sweep. Automatically resolves the most recent `matrixId` in the database. Combinable with `--plain`, `--json`, and `--sort`. |
 | `--sandbox <provider>` | (none) | Only show runs with a matching sandbox provider (substring match, case-insensitive). E.g. `--sandbox e2b` or `--sandbox docker`. Mirrors `agr status --by-sandbox` for filter symmetry. |
 | `--error <substring>` | (none) | Only show runs whose error message contains this substring (case-insensitive). Useful for grouping runs by failure type (e.g. `--error timeout`, `--error rate limit`). |
+| `--latest` | `false` | Deduplicate the run list to show only the most recent run per (test case, agent config) pair. Gives a current-state snapshot rather than full history. Combinable with `--passed`, `--failed`, `--test-case`, `--config`, `--model`, and all other filters. |
 | `--min-cost <amount>` | (none) | Only show runs costing at least this amount in USD (e.g. `0.05`). Useful for finding expensive outlier runs. |
 | `--max-cost <amount>` | (none) | Only show runs costing at most this amount in USD. Useful for finding cheap runs or verifying cost constraints. |
 | `--min-steps <n>` | (none) | Only show runs with at least this many steps. Useful for finding runaway agents that took far more steps than expected. |
@@ -694,6 +695,7 @@ agr list --plain --failed
 
 # Show most expensive runs first
 agr list --plain --sort cost
+agr list --plain --latest              # current state: one entry per (test case, config)
 
 # Find the slowest runs in the last week
 agr list --plain --since 7d --sort duration
