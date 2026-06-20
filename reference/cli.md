@@ -656,6 +656,33 @@ agr count --by-test-case --json | jq '.byTestCase[] | select(.total < 3) | .test
 agr count --by-config --since 7d
 ```
 
+## `agr cost`
+
+Print the total cost for runs matching the given filters as a plain dollar amount. The default output is pipe-friendly (`$1.2345`). Use `--json` for machine-readable output with total, average, and run count.
+
+```bash
+agr cost
+agr cost --since 24h
+agr cost --last-matrix
+agr cost --test-case hello-world --since 7d --json | jq .avgCostUsd
+```
+
+### Options
+
+| Flag | Default | Description |
+|---|---|---|
+| `--db <path>` | `.agr/db.sqlite` | SQLite database to read. |
+| `--since <duration\|date>` | (none) | Only include runs after this point. |
+| `--test-case <name>` | (none) | Only include runs for this specific test case (substring match). |
+| `--config <name>` | (none) | Only include runs for this specific agent config (substring match). |
+| `--model <substring>` | (none) | Only include runs where the agent model contains this substring (case-insensitive). |
+| `--sandbox <provider>` | (none) | Only include runs with this sandbox provider (substring match). |
+| `--passed` | `false` | Only include runs that passed. Mutually exclusive with `--failed`. |
+| `--failed` | `false` | Only include runs that failed. Mutually exclusive with `--passed`. |
+| `--matrix-id <id>` | (none) | Only include runs from a specific bench matrix sweep. |
+| `--last-matrix` | `false` | Only include runs from the most recent bench matrix sweep. |
+| `--json` | `false` | Output as a JSON object `{totalCostUsd, avgCostUsd, total, dbPath}`. |
+
 ## `agr list`
 
 Browse saved runs from `.agr/db.sqlite` in an interactive terminal UI: a scrollable run list, a detail view (run metadata, agent diff, trace preview), and a side-by-side diff compare between any two runs.
