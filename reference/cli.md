@@ -171,7 +171,9 @@ Exit codes: `0` once the run completes by default, even when the agent scores `F
 | `--adapter <name>` | `ai-sdk` | Agent adapter: `ai-sdk` (default AI SDK loop) or `acp` (external ACP agent). See [ACP Agent Adapter](/advanced/acp-agent). |
 | `--verbose` | `false` | Show full per-step detail (tool name + content preview) in the live step list, instead of the compact step/cost counter. |
 | `--repeat <n>` | (none) | Run the test case N times sequentially and print a solve-rate summary. Useful for flakiness testing or measuring statistical consistency of a fix before scaling up with `agr bench`. |
-| `--fail-on-failure` | `false` | Exit with code 1 if the run does not pass. With `--repeat`, exits 1 if any run fails. |
+| `--until-pass` | `false` | Run the test case repeatedly until it passes, stopping immediately on the first passing attempt. Useful for verifying a flaky fix actually works. Combine with `--max-attempts` to cap total tries. |
+| `--max-attempts <n>` | `5` | Cap the number of attempts for `--until-pass`. Has no effect without `--until-pass`. |
+| `--fail-on-failure` | `false` | Exit with code 1 if the run does not pass. With `--repeat`, exits 1 if any run fails. With `--until-pass`, exits 1 if none of the attempts pass. |
 | `--report <format>` | (none) | Write a report after the run (`json`, `jsonl`, `html`, `md`). |
 | `--output <path>` | (none) | Output path for `--report`. |
 | `--report-dir <dir>` | (none) | Directory for auto-named report files. Generates `run-<timestamp>.<ext>` when `--output` is not given. Useful in CI to always archive reports without hardcoding a filename. |
@@ -239,6 +241,12 @@ agr run fix-greeting --config agent.yaml --verbose
 
 # Run 5 times to measure flakiness before scaling with bench
 agr run fix-greeting --config agent.yaml --repeat 5
+
+# Run until it passes (up to 5 attempts by default)
+agr run fix-greeting --config agent.yaml --until-pass
+
+# Run until it passes, cap at 10 attempts
+agr run fix-greeting --config agent.yaml --until-pass --max-attempts 10
 
 # External ACP agent (Claude Code, Cursor Agent, ...)
 agr run fix-greeting --config agent-acp.yaml --adapter acp
