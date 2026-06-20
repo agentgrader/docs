@@ -729,8 +729,9 @@ Run IDs come from bench/run output or the `runs` table in `.agr/db.sqlite`. Both
 | `[runIdA]` | Required unless `--last-two` | First run to compare (shown as column A). |
 | `[runIdB]` | Required unless `--last-two` | Second run to compare (shown as column B). |
 | `--last-two` | `false` | Compare the two most recent runs without specifying IDs. |
-| `--test-case <name>` | (none) | With `--last-two`, scope to the two most recent runs for this specific test case (substring match on `testCaseId`). |
-| `--config <name>` | (none) | With `--last-two`, scope to the two most recent runs for this specific agent config (substring match on `agentConfigId`). |
+| `--first-and-last` | `false` | Compare the oldest and most recent runs. Useful for tracking how a test case has changed over time. Combine with `--test-case` and `--config` to scope the search. |
+| `--test-case <name>` | (none) | With `--last-two` or `--first-and-last`, scope to runs for this specific test case (substring match on `testCaseId`). |
+| `--config <name>` | (none) | With `--last-two` or `--first-and-last`, scope to runs for this specific agent config (substring match on `agentConfigId`). |
 | `--full` | `false` | Print full step content without the 200-character truncation used by `agr trace`. |
 | `--only-diff` | `false` | Show only divergent steps, plus one step of context before and after each divergence. |
 | `--json` | `false` | Output the comparison as a single JSON object `{runA, runB, divergentCount, totalSteps, firstDivergence, steps[]}`. Each step has `{index, divergent, a, b}` where `a`/`b` are `{kind, tool, content}` or `null`. |
@@ -758,6 +759,9 @@ agr compare --last-two --test-case hello-world
 
 # Machine-readable divergence check for CI
 agr compare --last-two --json | jq .divergentCount
+
+# Compare oldest vs most recent run for a test case (track progress over time)
+agr compare --first-and-last --test-case hello-world --only-diff
 ```
 
 ## `agr compare-baseline`
