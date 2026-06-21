@@ -115,6 +115,9 @@ agr list-tests tasks/
 | `--json` | `false` | Print results as a JSON array (`name`, `path`, `relativePath`, optional `description`, optional `tags`) instead of a human-readable table. Useful for scripting or CI step that enumerates test cases. |
 | `--count` | `false` | Print only the number of matching test cases as a bare integer. Useful in shell conditions: `if [ $(agr list-tests --count) -eq 0 ]; then ...`. |
 | `--tags <tags>` | (none) | Comma-separated list of tags; only show test cases whose `tags:` list contains at least one match. |
+| `--unrun` | `false` | Only show test cases with no recorded runs in `.agr/db.sqlite`. Gracefully handles a missing DB (treats all cases as unrun). Combinable with `--count` and `--json`. Useful for finding tasks in the suite that have never been executed. |
+| `--run-counts` | `false` | Show run counts (total, passed, failed) alongside each test case, sorted fewest-runs-first. `0 runs [unrun]` marks never-executed cases. With `--json`, adds `runs`, `passed`, `failed` to each entry. Useful for identifying under-covered test cases. |
+| `--db <path>` | `.agr/db.sqlite` | Path to the SQLite database for `--unrun` and `--run-counts`. |
 
 ### Examples
 
@@ -1095,7 +1098,7 @@ Output includes:
 | `--last-matrix` | `false` | Restrict stats to runs from the most recent bench matrix sweep. Useful for inspecting the results of the last `agr bench --matrix` without filtering by date. |
 | `--trend` | `false` | Compare the `--since` window to the equal-length window before it. Requires `--since`. Shows solve-rate delta (pp), run count delta, and avg cost delta with directional arrows. |
 | `--by-day` | `false` | Show a per-day breakdown: runs, solve rate, and total cost per calendar day (UTC), sorted oldest-first. Combinable with `--since`, `--top`, and all filter flags. |
-| `--sort-by <field>` | `solve-rate` | Sort `--by-test-case`, `--by-config`, and `--by-model` breakdowns. Values: `solve-rate` (default), `cost` (avg cost/run, most expensive first), `runs` (most runs first). |
+| `--sort-by <field>` | `solve-rate` | Sort `--by-test-case`, `--by-config`, and `--by-model` breakdowns. Values: `solve-rate` (default), `cost` (avg cost/run, most expensive first), `runs` (most runs first), `duration` (avg duration/run, slowest first). |
 | `--errors` | `false` | Show a deduplicated list of error messages from errored/failed runs, sorted by frequency. Each entry shows count, affected test cases, and an `agr trace <runId>` link. Combinable with `--since`, `--test-case`, `--config`, and all filter flags. `--json` emits `{errors: [{message, count, exampleRunId, testCaseIds}]}`. |
 | `--flaky` | `false` | Show test cases that have both passes and failures in the matching run history, sorted closest-to-50/50 first. Combinable with `--since`, `--config`, `--model`, `--top`, and all filter flags. `--json` emits `{flaky: [{testCaseId, total, passed, failed, solveRate, avgCostUsd, variance}]}`. |
 | `--percentiles` | `false` | Add p50 and p95 percentile stats for cost and duration to the base status output. With `--json`, adds `p50CostUsd`, `p95CostUsd`, `p50DurationMs`, `p95DurationMs` to the response. Useful for spotting expensive outlier runs that skew the average. |
@@ -1104,6 +1107,9 @@ Output includes:
 | `--min-runs <n>` | (none) | With `--by-test-case`, `--by-config`, or `--by-model`: only show entries with at least N total runs. Useful for excluding test cases that haven't been run enough to produce statistically meaningful solve rates. Combinable with `--below`, `--top`, `--sort-by`, `--since`, and all filter flags. |
 | `--rolling <n>` | (all) | With `--by-test-case`, `--by-config`, or `--by-model`: compute solve rate using only the most recent N runs per entry (newest first). Useful for evaluating current agent quality without historical failures dragging down the score. Combinable with `--min-runs`, `--below`, `--top`, `--sort-by`, `--since`, and all filter flags. |
 | `--show-ids` | `false` | With `--by-test-case`, `--by-config`, or `--by-model`: append `last run: agr trace <id>` to each row. The `lastRunId` field is also included in `--json` output. Useful for quickly tracing the last run of a failing test case without looking up the ID separately. |
+| `--above <n>` | (none) | With `--by-test-case`, `--by-config`, or `--by-model`: only show entries with solve rate strictly above n% (0-100). Complement to `--below`. `--above 80` shows consistently passing entries; `--above 0` excludes never-passing entries. Combinable with `--below` for a solve-rate range. |
+| `--by-week` | `false` | Show a per-week breakdown (runs, solve rate, total cost) labeled `YYYY-Www`, sorted oldest first. Higher-level view than `--by-day` for long-running eval suites. Combinable with `--since`, `--top`, `--test-case`, `--config`, and all filter flags. `--json` emits `{byWeek: [{week, total, passed, failed, solveRate, totalCostUsd, avgCostUsd}]}`. |
+| `--solve-rate` | `false` | Print the solve rate as a plain number (e.g. `83.3`) suitable for CI shell conditions. Combinable with all filter flags. `--json` emits `{solveRate, passedRuns, failedRuns, totalRuns, dbPath}`. |
 
 The `--json` output contains: `exists`, `dbPath`, `since`, `testCase`, `config`, `model`, `passed`, `totalRuns`, `passedRuns`, `failedRuns`, `erroredRuns`, `solveRate`, `uniqueTestCases`, `uniqueConfigs`, `matrixRuns`, `totalCostUsd`, `avgCostUsd`, `avgDurationMs`, `totalTokensIn`, `totalTokensOut`, `lastRunAt`, `lastRunTestCaseId`, `lastRunAgentConfigId`. With `--by-config`, instead emits `{ exists, dbPath, since, testCase, byConfig: [{configId, total, passed, failed, solveRate, avgCostUsd, avgDurationMs, avgTokensIn, avgTokensOut}] }`.
 
