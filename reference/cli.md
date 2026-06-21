@@ -683,6 +683,8 @@ agr cost --test-case hello-world --since 7d --json | jq .avgCostUsd
 | `--matrix-id <id>` | (none) | Only include runs from a specific bench matrix sweep. |
 | `--last-matrix` | `false` | Only include runs from the most recent bench matrix sweep. |
 | `--json` | `false` | Output as a JSON object `{totalCostUsd, avgCostUsd, total, dbPath}`. |
+| `--by-test-case` | `false` | Print cost breakdown per test case, sorted most expensive first. Plain: tab-separated `$total\ttestCaseId\t(N runs, avg $X/run)`. JSON: `{total, totalCostUsd, byTestCase: [{testCaseId, total, totalCostUsd, avgCostUsd}]}`. |
+| `--by-config` | `false` | Print cost breakdown per agent config, sorted most expensive first. Same format as `--by-test-case` but keyed by `agentConfigId`. |
 
 ## `agr list`
 
