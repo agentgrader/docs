@@ -329,6 +329,12 @@ agr bench --manifest bench.yaml
 | `--sample <n>` | (all) | Randomly select N test cases from the suite without replacement and run only those. Prints the selected names so the draw is visible. Combinable with `--suite`, `--tags`, `--config`, and all other bench flags. Useful for quick sanity checks on large suites without running everything. |
 | `--seed <n>` | (random) | Seed for `--shuffle` and `--sample` randomization. The same seed always produces the same ordering or selection, enabling reproducible controlled experiments. Without `--seed`, a random seed is used. |
 | `--print-ids` | `false` | Print all completed run IDs to stdout after the bench (one per line, under a `Run IDs:` header). Enables shell pipelines like `agr bench ... --print-ids \| tail -1 \| xargs agr trace` or looping over IDs with `while read id`. |
+| `--print-passed` | `false` | Print only the run IDs of passing runs to stdout (one per line). Useful for piping to downstream commands that should only process successful runs. |
+| `--print-failed` | `false` | Print only the run IDs of failing or errored runs to stdout (one per line). Useful for `xargs agr trace` investigation pipelines. |
+| `--output-json <file>` | (none) | Write the full bench result JSON to a file after the bench completes, regardless of `--json` flag. Same structure as `--json` stdout output (including `byTestCase`, `byConfig`, `runs`, `gateReasons`). |
+| `--min-pass-count <n>` | (none) | Exit with code 1 if fewer than N runs passed in total. Complementary to `--min-solve-rate` (rate-based); useful when you need N absolute successes regardless of total run count. |
+| `--max-cost <amount>` | (none) | Exit with code 1 if the total bench cost (USD) exceeds this threshold. Useful as a budget gate in CI to prevent runaway spend. |
+| `--ci` | `false` | Shorthand for the most common CI settings: enables `--fail-on-failure`, `--show-failures`, and `--github-step-summary`. Individual flags still override when specified explicitly. |
 | `--show-failures` | `false` | After bench completes, print a compact list of failing test cases with their run IDs (as `agr trace <id>` shortcuts) and up to 80 characters of the error message. Avoids having to separately run `agr status --by-test-case --below 100`. |
 | `--config-grid` | `false` | After a multi-config bench completes, print a PASS/FAIL grid (rows: test cases, columns: agent configs) for the current bench run. Only shown when at least 2 configs were run. Gives an at-a-glance view of which tasks passed for which configs without needing `agr status --grid`. |
 | `--only-unrun` | `false` | Run only test cases with no recorded runs in the DB (no history). The natural complement to `--only-failed`; exits cleanly when all cases have runs. Useful for building initial coverage of a large suite. |
@@ -661,6 +667,7 @@ agr count --model haiku --since 7d
 | `--json` | `false` | Output as a JSON object `{total, passed, failed, dbPath}` instead of a plain number. |
 | `--by-test-case` | `false` | Print a count per test case, sorted by total runs (most first). Plain text: tab-separated `total\ttestCaseId\t(N passed, M failed)`. JSON: `{total, byTestCase: [{testCaseId, total, passed, failed}]}`. |
 | `--by-config` | `false` | Print a count per agent config, sorted by total runs (most first). Same format as `--by-test-case` but keyed by `agentConfigId`. |
+| `--by-model` | `false` | Print a count per model, sorted by total runs (most first). JSON: `{total, byModel: [{model, total, passed, failed, solveRate}]}`. |
 
 Without `--passed` or `--failed`, `--json` mode still reports both `passed` and `failed` counts alongside `total`.
 
@@ -700,6 +707,7 @@ agr cost --test-case hello-world --since 7d --json | jq .avgCostUsd
 | `--json` | `false` | Output as a JSON object `{totalCostUsd, avgCostUsd, total, dbPath}`. |
 | `--by-test-case` | `false` | Print cost breakdown per test case, sorted most expensive first. Plain: tab-separated `$total\ttestCaseId\t(N runs, avg $X/run)`. JSON: `{total, totalCostUsd, byTestCase: [{testCaseId, total, totalCostUsd, avgCostUsd}]}`. |
 | `--by-config` | `false` | Print cost breakdown per agent config, sorted most expensive first. Same format as `--by-test-case` but keyed by `agentConfigId`. |
+| `--by-model` | `false` | Print cost breakdown per model, sorted most expensive first. JSON: `{total, totalCostUsd, byModel: [{model, total, totalCostUsd, avgCostUsd}]}`. |
 
 ## `agr watch`
 
@@ -722,6 +730,7 @@ agr watch --json | jq 'select(.passed == false)'
 | `--json` | `false` | Emit each new run as a JSON line (NDJSON) for piping to `jq`. Fields: `id`, `testCaseId`, `agentConfigId`, `passed`, `costUsd`, `durationMs`, `stepsCount`, `createdAt`. |
 | `--exit-on-pass` | `false` | Exit with code 0 as soon as any passing run appears. Useful for waiting until a fix is confirmed. |
 | `--exit-on-fail` | `false` | Exit with code 1 as soon as any failing run appears. Useful for fail-fast CI patterns. |
+| `--timeout <s>` | (none) | Exit with code 2 if no new run appears within N seconds; resets each time a new run is seen. Useful in CI to detect stalled bench processes that crash without writing any runs. |
 
 ## `agr prune`
 
@@ -771,6 +780,7 @@ agr list
 | `--sandbox <provider>` | (none) | Only show runs with a matching sandbox provider (substring match, case-insensitive). E.g. `--sandbox e2b` or `--sandbox docker`. Mirrors `agr status --by-sandbox` for filter symmetry. |
 | `--error <substring>` | (none) | Only show runs whose error message contains this substring (case-insensitive). Useful for grouping runs by failure type (e.g. `--error timeout`, `--error rate limit`). |
 | `--latest` | `false` | Deduplicate the run list to show only the most recent run per (test case, agent config) pair. Gives a current-state snapshot rather than full history. Combinable with `--passed`, `--failed`, `--test-case`, `--config`, `--model`, and all other filters. |
+| `--active` | `false` | Filter to show only runs currently in progress (status = running). Useful for checking if a bench is still running or detecting stuck/hung runs that never completed. |
 | `--min-cost <amount>` | (none) | Only show runs costing at least this amount in USD (e.g. `0.05`). Useful for finding expensive outlier runs. |
 | `--min-duration <ms>` | (none) | Only show runs lasting at least this many milliseconds (e.g. `60000` for runs over a minute). Useful for finding slow or stalled agents. |
 | `--max-duration <ms>` | (none) | Only show runs lasting at most this many milliseconds (e.g. `5000` for very fast runs). Useful for finding agents that terminated early or timed out. |
