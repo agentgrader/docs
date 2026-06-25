@@ -177,6 +177,7 @@ Exit codes: `0` once the run completes by default, even when the agent scores `F
 | `--until-pass` | `false` | Run the test case repeatedly until it passes, stopping immediately on the first passing attempt. Useful for verifying a flaky fix actually works. Combine with `--max-attempts` to cap total tries. |
 | `--max-attempts <n>` | `5` | Cap the number of attempts for `--until-pass`. Has no effect without `--until-pass`. |
 | `--fail-on-failure` | `false` | Exit with code 1 if the run does not pass. With `--repeat`, exits 1 if any run fails. With `--until-pass`, exits 1 if none of the attempts pass. |
+| `--show-trace` | `false` | Print all trace steps with content previews after the run completes (same output as `agr trace --last`). Useful in CI where the interactive TUI is not available. Combinable with `--fail-on-failure` to see what happened when a CI run fails. |
 | `--report <format>` | (none) | Write a report after the run (`json`, `jsonl`, `html`, `md`). |
 | `--output <path>` | (none) | Output path for `--report`. |
 | `--report-dir <dir>` | (none) | Directory for auto-named report files. Generates `run-<timestamp>.<ext>` when `--output` is not given. Useful in CI to always archive reports without hardcoding a filename. |
@@ -719,6 +720,28 @@ agr watch --json | jq 'select(.passed == false)'
 | `--config <name>` | (none) | Only show runs for this specific agent config (substring match). |
 | `--interval <s>` | `3` | Poll interval in seconds. |
 | `--json` | `false` | Emit each new run as a JSON line (NDJSON) for piping to `jq`. Fields: `id`, `testCaseId`, `agentConfigId`, `passed`, `costUsd`, `durationMs`, `stepsCount`, `createdAt`. |
+| `--exit-on-pass` | `false` | Exit with code 0 as soon as any passing run appears. Useful for waiting until a fix is confirmed. |
+| `--exit-on-fail` | `false` | Exit with code 1 as soon as any failing run appears. Useful for fail-fast CI patterns. |
+
+## `agr prune`
+
+Delete runs and their traces from `.agr/db.sqlite` that are older than a given cutoff, keeping the database lean after long eval campaigns.
+
+```bash
+agr prune --before 30d --dry-run   # preview
+agr prune --before 30d --yes       # delete
+agr prune --before 2026-01-01 --yes --json
+```
+
+### Options
+
+| Flag | Default | Description |
+|---|---|---|
+| `--db <path>` | `.agr/db.sqlite` | SQLite database to prune. |
+| `--before <duration\|date>` | Required | Delete runs created before this point (e.g. `30d`, `7d`, `2026-01-01`). Accepts the same formats as `--since`. |
+| `--dry-run` | `false` | Preview how many runs would be deleted without making any changes. |
+| `--yes` | `false` | Confirm deletion without prompting. Required unless `--dry-run` is used. |
+| `--json` | `false` | Output result as `{deleted, cutoff, dbPath}`. |
 
 ## `agr list`
 
@@ -1142,6 +1165,7 @@ Output includes:
 | `--min-runs <n>` | (none) | With `--by-test-case`, `--by-config`, or `--by-model`: only show entries with at least N total runs. Useful for excluding test cases that haven't been run enough to produce statistically meaningful solve rates. Combinable with `--below`, `--top`, `--sort-by`, `--since`, and all filter flags. |
 | `--rolling <n>` | (all) | With `--by-test-case`, `--by-config`, or `--by-model`: compute solve rate using only the most recent N runs per entry (newest first). Useful for evaluating current agent quality without historical failures dragging down the score. Combinable with `--min-runs`, `--below`, `--top`, `--sort-by`, `--since`, and all filter flags. |
 | `--show-ids` | `false` | With `--by-test-case`, `--by-config`, or `--by-model`: append `last run: agr trace <id>` to each row. The `lastRunId` field is also included in `--json` output. Useful for quickly tracing the last run of a failing test case without looking up the ID separately. |
+| `--show-last-pass` | `false` | With `--by-test-case`: append the relative time of the most recent passing run to each row (e.g. `last pass: 2h ago`); shows `last pass: never` when no passing run exists. The `lastPassAt` timestamp is also included in `--json`. Useful for identifying test cases that haven't passed recently even if their historical solve rate looks acceptable. |
 | `--above <n>` | (none) | With `--by-test-case`, `--by-config`, or `--by-model`: only show entries with solve rate strictly above n% (0-100). Complement to `--below`. `--above 80` shows consistently passing entries; `--above 0` excludes never-passing entries. Combinable with `--below` for a solve-rate range. |
 | `--by-week` | `false` | Show a per-week breakdown (runs, solve rate, total cost) labeled `YYYY-Www`, sorted oldest first. Higher-level view than `--by-day` for long-running eval suites. Combinable with `--since`, `--top`, `--test-case`, `--config`, and all filter flags. `--json` emits `{byWeek: [{week, total, passed, failed, solveRate, totalCostUsd, avgCostUsd}]}`. |
 | `--solve-rate` | `false` | Print the solve rate as a plain number (e.g. `83.3`) suitable for CI shell conditions. Combinable with all filter flags. `--json` emits `{solveRate, passedRuns, failedRuns, totalRuns, dbPath}`. |
