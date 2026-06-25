@@ -326,6 +326,7 @@ agr bench --manifest bench.yaml
 | `--only-failed` | `false` | Run only the test cases that failed on their most recent run in the DB. Useful for tight fix-and-retry loops: bench the full suite once, fix failing cases, then re-run only those with `--only-failed`. Exits cleanly if all previously-failed cases have since passed. |
 | `--shuffle` | `false` | Randomize the order of test cases before running. Reduces order-dependent bias in large suites and helps surface flaky tests that only fail when run after certain other tests. |
 | `--sample <n>` | (all) | Randomly select N test cases from the suite without replacement and run only those. Prints the selected names so the draw is visible. Combinable with `--suite`, `--tags`, `--config`, and all other bench flags. Useful for quick sanity checks on large suites without running everything. |
+| `--seed <n>` | (random) | Seed for `--shuffle` and `--sample` randomization. The same seed always produces the same ordering or selection, enabling reproducible controlled experiments. Without `--seed`, a random seed is used. |
 | `--print-ids` | `false` | Print all completed run IDs to stdout after the bench (one per line, under a `Run IDs:` header). Enables shell pipelines like `agr bench ... --print-ids \| tail -1 \| xargs agr trace` or looping over IDs with `while read id`. |
 | `--show-failures` | `false` | After bench completes, print a compact list of failing test cases with their run IDs (as `agr trace <id>` shortcuts) and up to 80 characters of the error message. Avoids having to separately run `agr status --by-test-case --below 100`. |
 | `--config-grid` | `false` | After a multi-config bench completes, print a PASS/FAIL grid (rows: test cases, columns: agent configs) for the current bench run. Only shown when at least 2 configs were run. Gives an at-a-glance view of which tasks passed for which configs without needing `agr status --grid`. |
@@ -572,6 +573,8 @@ agr trace --last
 | `--min-cost <amount>` | (none) | Only show steps costing at least this many USD (e.g. `0.001`). Applied before `--top-cost`. Useful for finding expensive individual LLM calls. |
 | `--max-cost <amount>` | (none) | Only show steps costing at most this many USD. Applied before `--top-cost`. Useful for showing only free or cheap steps. |
 | `--step-count` | `false` | Print the total step count as a plain number (ignores all view/filter flags except run selection). `--json` emits `{stepCount, filteredCount, runId}`. Useful in CI for asserting step budgets. |
+| `--kind-summary` | `false` | Show a compact table counting steps by kind (e.g. `llm_response`, `tool_call`, `tool_result`) with a proportional bar chart. `--json` emits `{run, total, kinds: [{kind, count}]}`. Gives a structural overview of what the agent did without reading the full trace. |
+| `--reverse` | `false` | Print steps in reverse order (latest step first). Header shows `N step(s) (reversed)`. Useful for seeing how a long trace ended without scrolling past all the early steps. |
 
 ### Examples
 
@@ -696,6 +699,26 @@ agr cost --test-case hello-world --since 7d --json | jq .avgCostUsd
 | `--json` | `false` | Output as a JSON object `{totalCostUsd, avgCostUsd, total, dbPath}`. |
 | `--by-test-case` | `false` | Print cost breakdown per test case, sorted most expensive first. Plain: tab-separated `$total\ttestCaseId\t(N runs, avg $X/run)`. JSON: `{total, totalCostUsd, byTestCase: [{testCaseId, total, totalCostUsd, avgCostUsd}]}`. |
 | `--by-config` | `false` | Print cost breakdown per agent config, sorted most expensive first. Same format as `--by-test-case` but keyed by `agentConfigId`. |
+
+## `agr watch`
+
+Live feed of new runs as they arrive in `.agr/db.sqlite`. Polls every N seconds (default 3) and prints each new run as it completes. All pre-existing runs are skipped. Press Ctrl+C to stop.
+
+```bash
+agr watch
+agr watch --test-case hello-world
+agr watch --json | jq 'select(.passed == false)'
+```
+
+### Options
+
+| Flag | Default | Description |
+|---|---|---|
+| `--db <path>` | `.agr/db.sqlite` | SQLite database to watch. |
+| `--test-case <name>` | (none) | Only show runs for this specific test case (substring match). |
+| `--config <name>` | (none) | Only show runs for this specific agent config (substring match). |
+| `--interval <s>` | `3` | Poll interval in seconds. |
+| `--json` | `false` | Emit each new run as a JSON line (NDJSON) for piping to `jq`. Fields: `id`, `testCaseId`, `agentConfigId`, `passed`, `costUsd`, `durationMs`, `stepsCount`, `createdAt`. |
 
 ## `agr list`
 
@@ -929,6 +952,12 @@ agr export traces --last --test-case hello-world --format otlp --output last-hel
 
 Each `export runs` record includes: `id`, `testCaseId`, `agentConfigId`, `passed`, `costUsd`, `durationMs`, `stepsCount`, `tokensIn`, `tokensOut`, `matrixId`, and `metrics`. For `--format csv`, all fields are included as columns; `metrics` is JSON-serialized in the cell.
 
+**`--columns <list>`** (runs only): comma-separated subset of fields to include (e.g. `id,testCaseId,passed,costUsd`). Omit `metrics` to avoid large JSON blobs in CSV output.
+
+**`--deduplicate`** (runs only): keep only the most recent run per (test case, agent config) pair before exporting. Mirrors `agr list --latest`; useful for creating current-state snapshots.
+
+**`--all`** (traces only): export traces for all runs without requiring any filter. Combine with `--limit` to cap total runs.
+
 Set `AGR_EXPORT_ON_BENCH=true` to auto-export run JSON after each `agr bench` completes (written under `.agr/exports/`).
 
 ## `agr toolkit-add`
@@ -1117,6 +1146,8 @@ Output includes:
 | `--by-week` | `false` | Show a per-week breakdown (runs, solve rate, total cost) labeled `YYYY-Www`, sorted oldest first. Higher-level view than `--by-day` for long-running eval suites. Combinable with `--since`, `--top`, `--test-case`, `--config`, and all filter flags. `--json` emits `{byWeek: [{week, total, passed, failed, solveRate, totalCostUsd, avgCostUsd}]}`. |
 | `--solve-rate` | `false` | Print the solve rate as a plain number (e.g. `83.3`) suitable for CI shell conditions. Combinable with all filter flags. `--json` emits `{solveRate, passedRuns, failedRuns, totalRuns, dbPath}`. |
 | `--summary` | `false` | Print a compact one-liner with all key stats, e.g. `127 runs: 89 PASS (70%) \| $1.23 total avg: $0.0097/run \| last: 2m ago`. `--json` emits `{totalRuns, passedRuns, failedRuns, solveRate, totalCostUsd, avgCostUsd, lastRunAt, dbPath}`. Combinable with all filter flags. |
+| `--best-config` | `false` | Print the agent config ID with the highest solve rate as a plain string. `--json` emits `{configId, solveRate, total, passed, avgCostUsd}`. Combinable with `--since` and all filter flags. Useful for CI scripts that auto-promote the best-performing config. |
+| `--best-model` | `false` | Print the model name with the highest solve rate as a plain string. `--json` emits `{model, solveRate, total, passed, avgCostUsd}`. Combinable with `--since` and all filter flags. |
 
 The `--json` output contains: `exists`, `dbPath`, `since`, `testCase`, `config`, `model`, `passed`, `totalRuns`, `passedRuns`, `failedRuns`, `erroredRuns`, `solveRate`, `uniqueTestCases`, `uniqueConfigs`, `matrixRuns`, `totalCostUsd`, `avgCostUsd`, `avgDurationMs`, `totalTokensIn`, `totalTokensOut`, `lastRunAt`, `lastRunTestCaseId`, `lastRunAgentConfigId`. With `--by-config`, instead emits `{ exists, dbPath, since, testCase, byConfig: [{configId, total, passed, failed, solveRate, avgCostUsd, avgDurationMs, avgTokensIn, avgTokensOut}] }`.
 
