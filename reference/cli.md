@@ -943,9 +943,11 @@ agr validate-toolkit ./toolkits/jetbrains-tools --strict
 
 ## `agr export`
 
-Export run metadata or step traces from `.agr/db.sqlite` for downstream analytics or observability pipelines.
+Export run metadata, step traces, or a summary snapshot from `.agr/db.sqlite` for downstream analytics or observability pipelines. Subcommands: `runs`, `traces`, `summary`.
 
 ```bash
+agr export summary --output summary.json
+agr export summary --since 7d --output week-summary.json
 agr export runs --format jsonl --output runs.jsonl
 agr export runs --format csv --output runs.csv
 agr export runs --model haiku --sort cost --output haiku-by-cost.jsonl
@@ -1173,6 +1175,9 @@ Output includes:
 | `--flaky` | `false` | Show test cases that have both passes and failures in the matching run history, sorted closest-to-50/50 first. Combinable with `--since`, `--config`, `--model`, `--top`, and all filter flags. `--json` emits `{flaky: [{testCaseId, total, passed, failed, solveRate, avgCostUsd, variance}]}`. |
 | `--regression` | `false` | Show test cases that have regressed: at least one historical passing run exists but the most recent N runs all failed. Scans the full run history regardless of `--since`. `--regression-window N` (default 3) sets the consecutive failure threshold. `--json` emits `{regressions: [{testCaseId, recentFails, lastPassAt, lastRunId}]}`. |
 | `--regression-window <n>` | `3` | Number of most recent consecutive failures required to classify a test case as regressed. Used with `--regression`. |
+| `--fail-on-regression` | `false` | With `--regression`: exit with code 1 if any regressions are detected. Enables direct use as a CI gate step. |
+| `--report-card` | `false` | Print a comprehensive health check combining: overall summary stats, regression count, and flaky test count. `--json` emits `{summary, regressions, flaky}`. Useful for a quick "how is my eval suite doing?" overview. |
+| `--emit-metrics` | `false` | Write current status metrics to `$GITHUB_OUTPUT` (SOLVE_RATE, PASSED_RUNS, FAILED_RUNS, TOTAL_RUNS, TOTAL_COST_USD, AVG_COST_USD, ERRORED_RUNS); also continues to show the normal status output. Combinable with `--since` for scoped metrics. |
 | `--percentiles` | `false` | Add p50 and p95 percentile stats for cost and duration to the base status output. With `--json`, adds `p50CostUsd`, `p95CostUsd`, `p50DurationMs`, `p95DurationMs` to the response. Useful for spotting expensive outlier runs that skew the average. |
 | `--below <n>` | (none) | With `--by-test-case`, `--by-config`, or `--by-model`: only show entries with solve rate strictly below n% (0-100). `--below 100` shows anything with at least one failure; `--below 50` shows entries failing more than half the time. Combinable with `--top`, `--sort-by`, `--since`, and all filter flags. |
 | `--grid` | `false` | Show a cross-tab matrix: rows are test cases, columns are agent configs, each cell shows `PASS`, `FAIL`, or `--` (no run) for the latest run of that pair. Combinable with `--since`, `--test-case`, `--config`, and all filter flags. `--json` emits `{testCaseIds, configIds, grid: [{testCaseId, configs: {configId: boolean\|null}}]}`. |
